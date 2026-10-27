@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Hokku OS
+Comment=Install this system to disk
+Exec=/usr/local/bin/hokku-installer
+Icon=calamares
+Terminal=false
+Categories=System;

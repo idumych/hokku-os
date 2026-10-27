@@ -1,0 +1,22 @@
+# Maintainer: idumych <idumych@gmail.com>
+# Desktop defaults for Hokku OS: the labwc theme and configuration under the Hokku session.
+pkgname=hokku-os-settings
+pkgver=2026.10.27
+pkgrel=1
+pkgdesc='Hokku OS desktop defaults: labwc theme and configuration in Haiku style'
+arch=(any)
+url='https://github.com/idumych/hokku-os'
+license=(MIT)
+depends=(hokku-desktop labwc noto-fonts gawk)
+optdepends=('grim: Print Screen key'
+            'brightnessctl: brightness keys'
+            'wireplumber: volume keys')
+source=(labwc/rc.xml labwc/menu.xml theme/themerc bin/hokku-app-menu)
+sha256sums=(SKIP SKIP SKIP SKIP)
+
+package() {
+    install -Dm644 rc.xml   "$pkgdir/etc/xdg/labwc/rc.xml"
+    install -Dm644 menu.xml "$pkgdir/etc/xdg/labwc/menu.xml"
+    install -Dm644 themerc  "$pkgdir/usr/share/themes/Hokku/labwc/themerc"
+    install -Dm755 hokku-app-menu "$pkgdir/usr/bin/hokku-app-menu"
+}

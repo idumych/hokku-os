@@ -1,0 +1,13 @@
+# Plasma-specific files in CachyOS's airootfs, removed from the Hokku profile.
+etc/plasmalogin.conf
+etc/plasmalogin.conf.d
+etc/pacman.d/hooks/90-cachyos-live-kwin-keyboard.hook
+etc/skel/.config/kded5rc
+etc/skel/.config/kscreenlockerrc
+etc/skel/.config/kwalletrc
+etc/skel/.config/plasma-welcomerc
+etc/skel/.config/powerdevilrc
+etc/skel/.config/powermanagementprofilesrc
+etc/skel/.config/systemd/user/plasma-login-kwin_wayland.service.d
+# greetd takes tty1 (its unit conflicts with getty@tty1)
+etc/systemd/system/getty@tty1.service.d

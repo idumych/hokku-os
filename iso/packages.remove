@@ -1,0 +1,26 @@
+# Dropped from CachyOS's packages_desktop.x86_64: the Plasma desktop, its apps,
+# its login manager and the CachyOS-branded welcome app.
+alacritty
+bluedevil
+breeze-gtk
+cachyos-hello
+cachyos-kde-settings
+dolphin
+kate
+kcalc
+kde-gtk-config
+kinfocenter
+konsole
+kscreen
+kxkb2locale1
+partitionmanager
+plasma-desktop
+plasma-integration
+plasma-login-manager
+plasma-nm
+plasma-pa
+plasma-thunderbolt
+plasma-workspace
+polkit-kde-agent
+spectacle
+xdg-user-dirs-gtk

@@ -1,0 +1,29 @@
+#!/bin/bash
+# Starts Calamares in offline mode: it copies this live system to disk.
+#
+# CachyOS's offline settings run Calamares' displaymanager module, which only
+# recognises desktops from a built-in list (Hokku isn't on it), and enable the
+# display manager through a script that doesn't know greetd. So the settings are
+# rewritten here, at run time, to drop that module and add shellprocess@hokku,
+# which configures greetd for Hokku after CachyOS's own clean-up has run.
+
+set -euo pipefail
+
+src=/usr/share/hokku-os/calamares
+log="$HOME/hokku-install.log"
+
+sudo install -m644 "$src/shellprocess_hokku.conf" /etc/calamares/modules/shellprocess_hokku.conf
+
+sed -E \
+    -e '/^\s*- displaymanager\s*$/d' \
+    -e 's/^(\s*)- shellprocess\s*$/\1- shellprocess\n\1- shellprocess@hokku/' \
+    -e 's/^instances:\s*$/instances:\n- id:       hokku\n  module:   shellprocess\n  config:   shellprocess_hokku.conf/' \
+    /usr/share/calamares/settings_offline.conf | sudo tee /etc/calamares/settings.conf >/dev/null
+
+{
+    echo "########## Hokku OS installer, started (UTC) $(date -u '+%F %T')"
+    echo "########## ISO version: $(cat /etc/version-tag 2>/dev/null || echo unknown)"
+    inxi -F 2>/dev/null || true
+} >"$log"
+
+exec pkexec-wrapper calamares -D6 >>"$log" 2>&1

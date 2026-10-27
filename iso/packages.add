@@ -1,0 +1,25 @@
+# The Hokku desktop (built by scripts/build-packages.sh into the local [hokku] repo)
+hokku
+hokku-apps
+hokku-desktop
+hokku-os-settings
+
+# What cosmoe-desktop.sh starts besides Tracker and Deskbar
+labwc
+mako
+polkit-gnome
+xdg-desktop-portal
+xdg-desktop-portal-wlr
+
+# Login
+greetd
+greetd-tuigreet
+
+# Small tools the labwc key bindings and live session use
+brightnessctl
+grim
+htop
+network-manager-applet
+nm-connection-editor
+pavucontrol
+xdg-user-dirs

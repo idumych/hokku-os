@@ -1,0 +1,12 @@
+# Live session: log liveuser straight into Hokku; after logout, show the greeter.
+# The installer replaces this file with one that has no automatic login.
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --remember --asterisks --cmd /usr/bin/cosmoe-desktop.sh"
+user = "greeter"
+
+[initial_session]
+command = "/usr/bin/cosmoe-desktop.sh"
+user = "liveuser"

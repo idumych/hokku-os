@@ -1,0 +1,8 @@
+build/
+out/
+repo/
+packages/*/src/
+packages/*/pkg/
+packages/*/hokku/
+packages/*/*.pkg.tar.*
+packages/*/*.log
