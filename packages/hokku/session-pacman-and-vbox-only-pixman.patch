@@ -1,0 +1,65 @@
+From 783647a9392952816b978933e28021f7d3d13cdf Mon Sep 17 00:00:00 2001
+From: idumych <idumych@gmail.com>
+Date: Tue, 27 Oct 2026 15:09:30 -0700
+Subject: [PATCH] cosmoe-desktop.sh: MIME database from pacman packages; pixman
+ renderer only under VirtualBox
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ README.md         |  4 ++++
+ cosmoe-desktop.sh | 17 ++++++++++++++---
+ 2 files changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/README.md b/README.md
+index 548fc76..b8fd589 100644
+--- a/README.md
++++ b/README.md
+@@ -164,6 +164,10 @@ Cosmoe builds against Hokku. Licence: MIT, as upstream (see License.md).
+   `/usr` and `/usr/local` prefixes, and inside the prefix otherwise, so non-root installs
+   finish. Staged (`DESTDIR`) installs no longer delete `libbe.so` from the build machine's
+   `/usr/local/lib`.
++- **Desktop session on Arch, and on real GPUs.** `cosmoe-desktop.sh` builds the MIME database
++  from pacman packages too (`hokku`/`cosmoe` and their `-apps`/`-desktop`), not only from
++  dpkg and rpm. The pixman renderer and software cursors, a VirtualBox workaround, are only
++  used under VirtualBox, so labwc renders on the GPU elsewhere.
+ 
+ ## Using it
+ 
+diff --git a/cosmoe-desktop.sh b/cosmoe-desktop.sh
+index 97213a3..ca4fee0 100644
+--- a/cosmoe-desktop.sh
++++ b/cosmoe-desktop.sh
+@@ -32,6 +32,14 @@ bootstrap_mime_database() {
+         package_files() {
+             rpm -ql cosmoe cosmoe-apps cosmoe-desktop 2>/dev/null
+         }
++    elif command -v pacman >/dev/null 2>&1; then
++        # Arch packages are named hokku or cosmoe; find whichever owns libbe.
++        base_package="$(pacman -Qqo /usr/lib/libbe.so 2>/dev/null || true)"
++        [ -n "$base_package" ] || return 0
++        package_version="$(pacman -Q "$base_package" 2>/dev/null | cut -d' ' -f2 || true)"
++        package_files() {
++            pacman -Qlq $(pacman -Qq "$base_package" "$base_package-apps" "$base_package-desktop" 2>/dev/null)
++        }
+     else
+         return 0
+     fi
+@@ -56,9 +64,12 @@ bootstrap_mime_database() {
+ bootstrap_mime_database
+ 
+ # VirtualBox's VMSVGA driver can accept pointer events while failing to display
+-# wlroots hardware cursors. Use software cursors and pixmap renderer to avoid this.
+-export WLR_NO_HARDWARE_CURSORS=1
+-export WLR_RENDERER=pixman
++# wlroots hardware cursors. Use software cursors and pixmap renderer to avoid this,
++# but only there: elsewhere the pixman renderer leaves the GPU unused.
++if [ "$(systemd-detect-virt 2>/dev/null)" = oracle ]; then
++    export WLR_NO_HARDWARE_CURSORS=1
++    export WLR_RENDERER=pixman
++fi
+ 
+ # Usually started via systemd --user, but ensure they are available.
+ systemctl --user start pipewire wireplumber 2>/dev/null || true
+-- 
+2.56.0
+

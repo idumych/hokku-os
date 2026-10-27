@@ -18,7 +18,8 @@ Not affiliated with or endorsed by CachyOS.
 ## Layout
 
 ```
-packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split, from the hokku branch)
+packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split), plus Hokku fixes
+                             not yet pushed to the hokku branch, as *.patch
 packages/hokku-os-settings/  labwc rc.xml, menu.xml and the Hokku theme
 iso/                         overlay on CachyOS's archiso profile (CachyOS-Live-ISO, pinned commit)
   packages.add / .remove       changes to CachyOS's packages_desktop.x86_64
