@@ -1,0 +1,6 @@
+# Hokku OS: started with every labwc session (a ~/.config/labwc/autostart
+# replaces this file).
+
+# Apply the display layout saved for the connected screens in
+# ~/.config/kanshi/config (resolution, scale, position, rotation).
+kanshi >/dev/null 2>&1 &

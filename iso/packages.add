@@ -23,3 +23,8 @@ network-manager-applet
 nm-connection-editor
 pavucontrol
 xdg-user-dirs
+
+# Displays: wdisplays sets resolution, scale, arrangement and rotation; kanshi
+# (started from labwc's autostart) applies the layouts in ~/.config/kanshi/config
+kanshi
+wdisplays
