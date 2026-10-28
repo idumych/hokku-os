@@ -1,0 +1,50 @@
+From e7319d1f2974ce65760a925d73e13dbb18215663 Mon Sep 17 00:00:00 2001
+From: idumych <idumych@gmail.com>
+Date: Tue, 27 Oct 2026 23:32:32 -0700
+Subject: [PATCH] BMenu: leave a margin after a shortcut's character
+
+Menus reserved the font size for the shortcut character and drew it
+flush against the right edge, so wide characters (W, M) and the
+"Switch Terminals" glyph were cut off. Reserve and leave a third of
+the font size after it.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/kits/interface/Menu.cpp     | 4 +++-
+ src/kits/interface/MenuItem.cpp | 5 +++--
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/kits/interface/Menu.cpp b/src/kits/interface/Menu.cpp
+index b02a786c..b6c34121 100755
+--- a/src/kits/interface/Menu.cpp
++++ b/src/kits/interface/Menu.cpp
+@@ -2823,7 +2823,9 @@ BMenu::_ComputeColumnLayout(int32 index, bool bestFit, bool moveItems,
+ 		item->GetContentSize(&width, &height);
+ 
+ 		if (item->fModifiers && item->fShortcutChar) {
+-			width += font.Size();
++			// the shortcut character, and a margin before the menu's edge
++			// (as BMenuItem::_DrawShortcutSymbol() draws it)
++			width += font.Size() + ceilf(font.Size() / 3);
+ 			if ((item->fModifiers & B_COMMAND_KEY) != 0)
+ 				command = true;
+ 
+diff --git a/src/kits/interface/MenuItem.cpp b/src/kits/interface/MenuItem.cpp
+index 554fd310..fbcccf1d 100755
+--- a/src/kits/interface/MenuItem.cpp
++++ b/src/kits/interface/MenuItem.cpp
+@@ -763,8 +763,9 @@ BMenuItem::_DrawShortcutSymbol(bool submenus)
+ 	BFont font;
+ 	menu->GetFont(&font);
+ 	BPoint where = ContentLocation();
+-	// Start from the right and walk our way back
+-	where.x = fBounds.right - font.Size();
++	// Start from the right and walk our way back, leaving a margin: a wide
++	// character (W, M) is about as wide as the font size
++	where.x = fBounds.right - font.Size() - ceilf(font.Size() / 3);
+ 
+ 	// Leave space for the submenu arrow if any item in the menu has a submenu
+ 	if (submenus)
+-- 
+2.56.0
+

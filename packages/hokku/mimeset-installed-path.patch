@@ -1,0 +1,50 @@
+From c66bbc3aec60407cc468c6bc14d607fabc273bd4 Mon Sep 17 00:00:00 2001
+From: idumych <idumych@gmail.com>
+Date: Tue, 27 Oct 2026 23:32:32 -0700
+Subject: [PATCH] install_with_mimeset.sh: record where the app is installed,
+ not DESTDIR
+
+mimeset records the path it found an app at in its MIME entry
+(META:PPATH, and META:S:DESC, the name shown for it). In a staged
+install that path is under DESTDIR, so packages shipped entries pointing
+into the build directory. BRoster::FindApp() then couldn't find an app
+from its signature, and Deskbar showed Tracker, whose Wayland app id
+matches no desktop file, as "x-vnd.Be-TRAK".
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/apps/install_with_mimeset.sh | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/src/apps/install_with_mimeset.sh b/src/apps/install_with_mimeset.sh
+index bb57fce2..667f2254 100644
+--- a/src/apps/install_with_mimeset.sh
++++ b/src/apps/install_with_mimeset.sh
+@@ -62,6 +62,24 @@ case "$(uname -s)" in
+         ;;
+ esac
+ 
++# mimeset records where it found the app (META:PPATH, and the name it shows,
++# META:S:DESC), which in a staged install is under DESTDIR: record where the
++# app will be installed instead, or the app can't be found from its signature.
++if [ -n "$destdir" ]; then
++    installed_path="${install_dir}/${app_name}"
++    find "$tmpdir" -type f | while IFS= read -r node; do
++        for attr in META:PPATH META:S:DESC; do
++            value="$(LD_LIBRARY_PATH="${build_root}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
++                DYLD_LIBRARY_PATH="${build_root}${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}" \
++                "$build_root/catattr" -d "$attr" "$node" 2>/dev/null)" || continue
++            [ "$value" = "$dest_path" ] || continue
++            LD_LIBRARY_PATH="${build_root}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
++                DYLD_LIBRARY_PATH="${build_root}${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}" \
++                "$build_root/addattr" "$attr" "$installed_path" "$node"
++        done
++    done
++fi
++
+ mkdir -p "$mime_db_path"
+ cp -a "$tmpdir/." "$mime_db_path/"
+ find "$mime_db_path" -type d -exec chmod 755 {} \;
+-- 
+2.56.0
+
