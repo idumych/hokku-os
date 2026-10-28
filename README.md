@@ -8,8 +8,8 @@ installer). The Plasma desktop is replaced with:
 
 | | |
 |---|---|
-| Session | `hokku-session` (passes the system keyboard layout, as set by the installer or `localectl`, to labwc and Hokku), then `cosmoe-desktop.sh` from Hokku: labwc + Tracker + Deskbar + Terminal, mako, polkit-gnome, portals |
-| Look | [Gonx](https://github.com/idumych/gonx) throughout: Hokku is built from its `gonx-frame` branch, and new users start with what `gonx-theme apply` sets (window frame, controls, colours, fonts, plain desktop colour) from `/etc/skel`. labwc's frames for non-Be apps use Gonx's colours. `gonx-theme revert` goes back to Hokku's own look |
+| Session | `hokku-session` (passes the system keyboard layout, as set by the installer or `localectl`, to labwc and Hokku), then `cosmoe-desktop.sh` from Hokku: labwc + Tracker + Deskbar (with a tray for other desktops' applets through TrayBridge: network, volume and Bluetooth start with the session) + Terminal, Xwayland for X11 apps, mako, polkit-gnome, portals |
+| Look | [Gonx](https://github.com/idumych/gonx) throughout: new users start with what `gonx-theme apply` sets (window frame, controls, colours, fonts, plain desktop colour) from `/etc/skel`. labwc's frames for non-Be apps use Gonx's colours. `gonx-theme revert` goes back to Hokku's own look |
 | Displays | wdisplays (resolution, scale, arrangement, rotation; from the Super-key menu) and kanshi, started from `/etc/xdg/labwc/autostart`, which applies the layouts in `~/.config/kanshi/config` at login |
 | Login | greetd + tuigreet (the live ISO logs `liveuser` in automatically) |
 | Installer | Calamares in offline mode: copies the live system to disk, then sets up greetd for Hokku |
@@ -19,7 +19,7 @@ Not affiliated with or endorsed by CachyOS.
 ## Layout
 
 ```
-packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split) from the gonx-frame
+packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split) from the hokku
                              branch, plus Hokku fixes not yet pushed, as *.patch
 packages/hokku-os-settings/  hokku-session, the Gonx settings for /etc/skel, labwc rc.xml, menu.xml
                              and its Gonx-coloured theme

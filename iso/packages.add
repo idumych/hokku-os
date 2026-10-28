@@ -19,7 +19,6 @@ greetd-tuigreet
 brightnessctl
 grim
 htop
-network-manager-applet
 nm-connection-editor
 pavucontrol
 xdg-user-dirs
@@ -28,3 +27,14 @@ xdg-user-dirs
 # (started from labwc's autostart) applies the layouts in ~/.config/kanshi/config
 kanshi
 wdisplays
+
+# X11 apps (labwc starts Xwayland when one opens)
+xorg-xwayland
+
+# Deskbar tray applets (TrayBridge shows them; hokku-session.target starts
+# them from /etc/xdg/autostart): network, volume, Bluetooth. All three are
+# StatusNotifierItems, which TrayBridge needs (no XEmbed proxy is packaged
+# outside Plasma).
+network-manager-applet
+kmix
+blueman

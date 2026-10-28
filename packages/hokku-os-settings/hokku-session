@@ -39,4 +39,16 @@ if ! catattr be:bgndimginfo "$desktop" >/dev/null 2>&1; then
         && addattr -f /usr/share/hokku-os/no-background.msg -c MSGG be:bgndimginfo "$desktop"
 fi
 
-exec /usr/bin/cosmoe-desktop.sh "$@"
+# What an earlier session left running if it was killed rather than logged
+# out: its hokku-session.target (still "active", so the autostart's start
+# would do nothing) and TrayBridge, which outlives the session (no Wayland
+# connection) and would give the new Deskbar every tray icon twice.
+systemctl --user stop hokku-session.target 2>/dev/null
+pkill -u "$(id -u)" -x TrayBridge 2>/dev/null
+
+/usr/bin/cosmoe-desktop.sh "$@"
+status=$?
+# Stop what the session started through hokku-session.target (tray applets).
+systemctl --user stop hokku-session.target 2>/dev/null
+pkill -u "$(id -u)" -x TrayBridge 2>/dev/null
+exit $status
