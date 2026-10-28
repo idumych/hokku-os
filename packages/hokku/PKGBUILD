@@ -5,9 +5,12 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r1.47d704e
-pkgrel=3
-_commit=47d704edcd809a04c67837d4e024c6e533f24887
+pkgver=0.9.0.r7.31b71b5
+pkgrel=1
+# The gonx-frame branch (the full Gonx look: window frame, control look,
+# gonx-theme) plus the one hokku-branch commit it doesn't have yet.
+_commit=31b71b53b102e5d2cf4fddda514149a7280f4b32
+_hokku_commit=47d704edcd809a04c67837d4e024c6e533f24887
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
@@ -22,17 +25,22 @@ makedepends=(git meson ninja flex bison wayland-protocols "${_libdeps[@]}")
 source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit"
         session-pacman-and-vbox-only-pixman.patch
         mime-bootstrap.patch
-        keymap-xkb-defaults.patch)
+        keymap-xkb-defaults.patch
+        terminal-resize-view-repaint.patch)
 sha256sums=(SKIP
             6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260
             ceea66a8de55991f83e59ac78d873b75b1562521b505931459af59d3ab098d28
-            44ba69868e9065466e31d744f01d89143fbaba07dd626967748a1420ce5f7f16)
+            44ba69868e9065466e31d744f01d89143fbaba07dd626967748a1420ce5f7f16
+            fc4eb32a526107849d8fe73d7a0475cce6d3aa9a983093a885c8f68b34fff3e1)
 
 prepare() {
     cd hokku
+    git cherry-pick --no-commit "$_hokku_commit"
+    # The patches' README notes don't apply on gonx-frame's README.
     local p
-    for p in session-pacman-and-vbox-only-pixman mime-bootstrap keymap-xkb-defaults; do
-        git apply "$srcdir/$p.patch"
+    for p in session-pacman-and-vbox-only-pixman mime-bootstrap keymap-xkb-defaults \
+             terminal-resize-view-repaint; do
+        git apply --exclude=README.md "$srcdir/$p.patch"
     done
 }
 
@@ -109,8 +117,9 @@ package_hokku() {
 
     # Everything else with a window is an app; what stays in /usr/bin are command-line tools.
     local -A tools=()
-    for t in addattr catattr collectcatkeys copyattr dumpcatalog finddir findpaths getarch hey \
-             linkcatkeys listattr listres message mimeset mkdepend rc roster vicn2png xres; do
+    for t in addattr catattr collectcatkeys copyattr dumpcatalog finddir findpaths getarch \
+             gonx-theme hey linkcatkeys listattr listres message mimeset mkdepend rc roster \
+             setcontrollook setdecor vicn2png xres; do
         tools[$t]=1
     done
     for t in "$pkgdir"/usr/bin/*; do

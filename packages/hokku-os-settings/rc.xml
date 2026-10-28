@@ -11,7 +11,7 @@
 
   <theme>
     <name>Hokku</name>
-    <cornerRadius>0</cornerRadius>
+    <cornerRadius>6</cornerRadius>
     <titlebar>
       <layout>close:iconify,max</layout>
       <showTitle>yes</showTitle>

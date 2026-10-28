@@ -1,0 +1,42 @@
+#!/bin/sh
+# Hokku OS session: Hokku's desktop (cosmoe-desktop.sh) with the system
+# keyboard layout and Gonx's plain desktop. (New users start in the Gonx look
+# from /etc/skel.)
+
+# The installer (and localectl set-x11-keymap) record the layout for X11 and
+# the console, which labwc and Hokku don't read. Both honour XKB_DEFAULT_*, so
+# export it from there; ~/.config/labwc/environment still overrides it.
+xkb_option() {
+    sed -n "s/^[[:space:]]*Option[[:space:]]*\"$1\"[[:space:]]*\"\([^\"]*\)\".*/\1/p" \
+        /etc/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null | head -n 1
+}
+vconsole() {
+    sed -n "s/^$1=\"\{0,1\}\([^\"]*\)\"\{0,1\}$/\1/p" /etc/vconsole.conf 2>/dev/null | head -n 1
+}
+if [ -z "${XKB_DEFAULT_LAYOUT:-}" ]; then
+    layout="$(xkb_option XkbLayout)"
+    if [ -n "$layout" ]; then
+        variant="$(xkb_option XkbVariant)"
+        model="$(xkb_option XkbModel)"
+        options="$(xkb_option XkbOptions)"
+    else
+        layout="$(vconsole XKBLAYOUT)"
+        variant="$(vconsole XKBVARIANT)"
+        model="$(vconsole XKBMODEL)"
+        options="$(vconsole XKBOPTIONS)"
+    fi
+    [ -n "$layout" ] && export XKB_DEFAULT_LAYOUT="$layout"
+    [ -n "$layout" ] && [ -n "$variant" ] && export XKB_DEFAULT_VARIANT="$variant"
+    [ -n "$layout" ] && [ -n "$model" ] && export XKB_DEFAULT_MODEL="$model"
+    [ -n "$layout" ] && [ -n "$options" ] && export XKB_DEFAULT_OPTIONS="$options"
+fi
+
+# Gonx's desktop is its plain colour. Without a background setting Tracker
+# installs Hokku's logo on the desktop, so give new desktops one without an image.
+desktop="$(finddir B_DESKTOP_DIRECTORY 2>/dev/null || echo "$HOME/Desktop")"
+if ! catattr be:bgndimginfo "$desktop" >/dev/null 2>&1; then
+    mkdir -p "$desktop" \
+        && addattr -f /usr/share/hokku-os/no-background.msg -c MSGG be:bgndimginfo "$desktop"
+fi
+
+exec /usr/bin/cosmoe-desktop.sh "$@"

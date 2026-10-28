@@ -1,0 +1,35 @@
+From 8e0c296e7e48b1d55b3ef46d4e6a16e5f19113e5 Mon Sep 17 00:00:00 2001
+From: idumych <idumych@gmail.com>
+Date: Tue, 27 Oct 2026 22:09:46 -0700
+Subject: [PATCH] Terminal: repaint where the size view was
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+TermView removes its "columns × rows" view 25 ms after a resize, but
+Hokku doesn't repaint what a removed child view covered, so the label
+stayed on screen. With the Gonx frame every Terminal window is resized
+once as it opens, so every new window showed a stale "80 × 25".
+Invalidate the view's frame before removing it.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/apps/terminal/TermView.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/apps/terminal/TermView.cpp b/src/apps/terminal/TermView.cpp
+index bf0bce2f..d02824c7 100644
+--- a/src/apps/terminal/TermView.cpp
++++ b/src/apps/terminal/TermView.cpp
+@@ -2005,6 +2005,8 @@ TermView::MessageReceived(BMessage *message)
+ 				break;
+ 
+ 			if (fResizeView != NULL) {
++				// Hokku doesn't repaint what a removed child view covered
++				Invalidate(fResizeView->Frame());
+ 				fResizeView->RemoveSelf();
+ 				delete fResizeView;
+ 				fResizeView = NULL;
+-- 
+2.56.0
+

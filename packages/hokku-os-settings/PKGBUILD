@@ -1,9 +1,10 @@
 # Maintainer: idumych <idumych@gmail.com>
-# Desktop defaults for Hokku OS: the labwc theme and configuration under the Hokku session.
+# Desktop defaults for Hokku OS: the Gonx look for new users, the session wrapper
+# (system keyboard layout), and labwc's theme and configuration to match.
 pkgname=hokku-os-settings
-pkgver=2026.10.27
+pkgver=2026.10.28
 pkgrel=1
-pkgdesc='Hokku OS desktop defaults: labwc theme and configuration in Haiku style'
+pkgdesc='Hokku OS desktop defaults: the Gonx look, the system keyboard layout, and labwc configured to match'
 arch=(any)
 url='https://github.com/idumych/hokku-os'
 license=(MIT)
@@ -11,15 +12,31 @@ depends=(hokku-desktop labwc noto-fonts gawk)
 optdepends=('grim: Print Screen key'
             'brightnessctl: brightness keys'
             'wireplumber: volume keys')
-source=(rc.xml menu.xml themerc hokku-app-menu)
-sha256sums=(e7714e41db4060f69b3211749fcf03ce0c1f521a7fcc3cd6803ebdcd6f7e56f1
+# gonx-*: what "gonx-theme apply" writes in a new user's ~/.config/cosmoe (it needs a
+# running compositor, so it can't run before the session); regenerate them that way.
+# no-background.msg: a flattened empty BMessage, Tracker's "no background image".
+source=(rc.xml menu.xml themerc hokku-app-menu hokku-session gonx-appearance gonx-fonts gonx-previous
+        no-background.msg)
+sha256sums=(f951e0a82020aede398f124a87064a0d86f257c504d5b2c929cdbcab599379f1
             ddba753c6c8d1c008d3ce8647a614e245b4fb3163506c4c455cab97befcc1d26
-            9ecd82f5ff8e62a4858939b73edf0dcb3a52764a41198836288278a4fb7ac6ae
-            b484528e162df88d77534440b0aeb6842a110c32b19888f3430ab64e4d97bc0e)
+            19275f9f1178c01fec5a2b1beeb8da1811c5995d1e5a4db9c874cb62e13afdba
+            b484528e162df88d77534440b0aeb6842a110c32b19888f3430ab64e4d97bc0e
+            8879fce4ea18750201b6928034bd11c6dc38c3bb913cc417ea95016ee910878b
+            d979de27fc94ff7577578a57806391d5a8726dc3ea8f1d9ddf34e085a11b939e
+            de5880e39e867d550c6b3463ca12db3132d1e0cd5da4209be73f7c33b64850d9
+            c5b6364df49fca2e7a1bdc56f2d730e70435fa3bc359f4e733108cb5468ca455
+            c762c5df28ea71fd036b20cdc38e9a8759c5a43bca7a3b11c2ab15189a50519c)
 
 package() {
     install -Dm644 rc.xml   "$pkgdir/etc/xdg/labwc/rc.xml"
     install -Dm644 menu.xml "$pkgdir/etc/xdg/labwc/menu.xml"
     install -Dm644 themerc  "$pkgdir/usr/share/themes/Hokku/labwc/themerc"
     install -Dm755 hokku-app-menu "$pkgdir/usr/bin/hokku-app-menu"
+    install -Dm755 hokku-session "$pkgdir/usr/bin/hokku-session"
+    # New users start in the Gonx look ("gonx-theme revert" goes back to Hokku's own)
+    local skel="$pkgdir/etc/skel/.config/cosmoe"
+    install -Dm644 gonx-appearance "$skel/system/app_server/appearance"
+    install -Dm644 gonx-fonts "$skel/system/app_server/fonts"
+    install -Dm644 gonx-previous "$skel/Gonx/previous"
+    install -Dm644 no-background.msg "$pkgdir/usr/share/hokku-os/no-background.msg"
 }

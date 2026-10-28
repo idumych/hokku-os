@@ -4,9 +4,9 @@
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --asterisks --cmd /usr/bin/cosmoe-desktop.sh"
+command = "tuigreet --time --remember --asterisks --cmd /usr/bin/hokku-session"
 user = "greeter"
 
 [initial_session]
-command = "/usr/bin/cosmoe-desktop.sh"
+command = "/usr/bin/hokku-session"
 user = "liveuser"
