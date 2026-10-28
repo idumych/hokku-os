@@ -6,7 +6,7 @@
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
 pkgver=0.9.0.r1.47d704e
-pkgrel=1
+pkgrel=2
 _commit=47d704edcd809a04c67837d4e024c6e533f24887
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
@@ -20,13 +20,20 @@ _libdeps=(cairo fontconfig glib2 glibc icu libgcc libglvnd libicns libjpeg-turbo
 makedepends=(git meson ninja flex bison wayland-protocols "${_libdeps[@]}")
 # Hokku fixes not pushed to github.com/idumych/hokku yet; drop each once it's on the hokku branch.
 source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit"
-        session-pacman-and-vbox-only-pixman.patch)
+        session-pacman-and-vbox-only-pixman.patch
+        mime-bootstrap-regular-files.patch
+        keymap-xkb-defaults.patch)
 sha256sums=(SKIP
-            6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260)
+            6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260
+            516ff99d2f96d20a554425137f8c7ce8f2ef29b60b262252624475761ae5081e
+            2e04c8ff5dc60cf8f237262f2d82adc58b8b84c1ae0970d43c9a73e9de711e63)
 
 prepare() {
     cd hokku
-    git apply "$srcdir/session-pacman-and-vbox-only-pixman.patch"
+    local p
+    for p in session-pacman-and-vbox-only-pixman mime-bootstrap-regular-files keymap-xkb-defaults; do
+        git apply "$srcdir/$p.patch"
+    done
 }
 
 build() {

@@ -1,0 +1,52 @@
+From 5d5717e8fa4366b5b5eb647a27fe50f190b88f75 Mon Sep 17 00:00:00 2001
+From: idumych <idumych@gmail.com>
+Date: Tue, 27 Oct 2026 19:35:03 -0700
+Subject: [PATCH 2/2] get_key_map: fall back to xkbcommon's default keymap
+
+With no layout in ~/.config/labwc/environment and no setxkbmap (a
+Wayland-only system), linux_build_key_map() failed and _get_key_map()
+returned without touching its outputs. Tracker's InitKeyIndices()
+passes uninitialized pointers, so its NULL check passed on stack garbage
+and Tracker crashed on startup.
+
+Build the keymap from xkbcommon's defaults (XKB_DEFAULT_*, else us),
+as the compositor does, and set the outputs to NULL before trying.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/kits/interface/InterfaceDefs.cpp | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/kits/interface/InterfaceDefs.cpp b/src/kits/interface/InterfaceDefs.cpp
+index afe1c481..f4a88a1a 100755
+--- a/src/kits/interface/InterfaceDefs.cpp
++++ b/src/kits/interface/InterfaceDefs.cpp
+@@ -460,8 +460,11 @@ linux_build_key_map(key_map** map, char** key_buffer,
+ 	ssize_t* key_buffer_size)
+ {
+ 	LinuxXkbNames names;
+-	if (!get_backend_xkb_names(names) && !get_current_xkb_names(names))
+-		return false;
++	if (!get_backend_xkb_names(names) && !get_current_xkb_names(names)) {
++		// No layout configured (and no setxkbmap on a Wayland-only system):
++		// use xkbcommon's defaults, as the compositor does (XKB_DEFAULT_*, else us).
++		names = LinuxXkbNames();
++	}
+ 
+ 	xkb_context* context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+ 	if (context == NULL)
+@@ -1314,6 +1317,11 @@ get_key_map(key_map **map, char **key_buffer)
+ void
+ _get_key_map(key_map **map, char **key_buffer, ssize_t *key_buffer_size)
+ {
++	// Callers check for NULL, often with uninitialized pointers.
++	*map = NULL;
++	*key_buffer = NULL;
++	if (key_buffer_size != NULL)
++		*key_buffer_size = 0;
+ #ifdef __linux__
+ 	if (linux_build_key_map(map, key_buffer, key_buffer_size))
+ 		return;
+-- 
+2.56.0
+
