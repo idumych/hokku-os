@@ -88,9 +88,9 @@ sed -i -e '/MENU \(LABEL\|TITLE\)/s/CachyOS/Hokku OS/g' "$profile"/syslinux/*.cf
 
 # 6. Build
 mkdir -p "$out"
-sudo mkarchiso -v -w "$build/work" -o "$out" "$profile"
-sudo rm -rf "$build/work"
-sudo chown "$(id -u):$(id -g)" "$out"/*.iso
+# One sudo for all of it: mkarchiso outlasts sudo's password timeout.
+sudo sh -c 'mkarchiso -v -w "$1/work" -o "$2" "$3" && rm -rf "$1/work" && chown "$4" "$2"/*.iso' \
+    sh "$build" "$out" "$profile" "$(id -u):$(id -g)"
 
 cd "$out"
 for iso in hokku-os-*.iso; do

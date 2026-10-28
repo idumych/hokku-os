@@ -19,7 +19,14 @@ repo="$root/repo/x86_64"
 
 command -v makechrootpkg >/dev/null || { echo "build-packages: install devtools first" >&2; exit 1; }
 
-if [ ! -d "$chroot/root" ]; then
+# mkarchroot writes .arch-chroot last, so a chroot without it is left over
+# from a failed run (on btrfs it is a subvolume) and is rebuilt from scratch.
+if [ ! -f "$chroot/root/.arch-chroot" ]; then
+    if [ -d "$chroot/root" ]; then
+        echo "build-packages: removing incomplete chroot $chroot/root" >&2
+        sudo btrfs subvolume delete "$chroot/root" 2>/dev/null || sudo rm -rf "$chroot/root"
+        sudo rm -f "$chroot/root.lock"
+    fi
     mkdir -p "$chroot"
     mkarchroot \
         -C /usr/share/devtools/pacman.conf.d/extra.conf \
@@ -35,7 +42,15 @@ pkgs=("$@")
 for pkg in "${pkgs[@]}"; do
     (
         cd "$root/packages/$pkg"
-        makechrootpkg -c -r "$chroot"
+        # makepkg installs depends too, and the chroot only has Arch's repos:
+        # hand it our own packages (all of them, they depend on each other).
+        installs=()
+        if (source PKGBUILD; printf '%s\n' "${depends[@]}" "${makedepends[@]}") | grep -q '^hokku'; then
+            for f in "$repo"/*.pkg.tar.zst; do
+                [ -e "$f" ] && installs+=(-I "$f")
+            done
+        fi
+        makechrootpkg -c -r "$chroot" "${installs[@]}"
         for f in $(makepkg --packagelist); do
             cp "$f" "$repo/"
             repo-add --remove --quiet "$repo/hokku.db.tar.gz" "$repo/$(basename "$f")"

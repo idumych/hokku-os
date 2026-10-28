@@ -11,8 +11,11 @@ depends=(hokku-desktop labwc noto-fonts gawk)
 optdepends=('grim: Print Screen key'
             'brightnessctl: brightness keys'
             'wireplumber: volume keys')
-source=(labwc/rc.xml labwc/menu.xml theme/themerc bin/hokku-app-menu)
-sha256sums=(SKIP SKIP SKIP SKIP)
+source=(rc.xml menu.xml themerc hokku-app-menu)
+sha256sums=(e7714e41db4060f69b3211749fcf03ce0c1f521a7fcc3cd6803ebdcd6f7e56f1
+            ddba753c6c8d1c008d3ce8647a614e245b4fb3163506c4c455cab97befcc1d26
+            9ecd82f5ff8e62a4858939b73edf0dcb3a52764a41198836288278a4fb7ac6ae
+            b484528e162df88d77534440b0aeb6842a110c32b19888f3430ab64e4d97bc0e)
 
 package() {
     install -Dm644 rc.xml   "$pkgdir/etc/xdg/labwc/rc.xml"
