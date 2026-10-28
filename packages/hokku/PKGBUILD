@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r17.de947b1
+pkgver=0.9.0.r40.12eac93
 pkgrel=1
-# The hokku branch (with the Gonx look and the Deskbar tray)
-_commit=de947b161f9e12626d0c803465a6b4c4337e265a
+# The hokku branch (with the Gonx look, the Deskbar tray and notifications)
+_commit=12eac937ee063ccaad28792225b8e5a8f79e9682
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
@@ -25,20 +25,23 @@ source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit"
         mime-bootstrap.patch
         keymap-xkb-defaults.patch
         mimeset-installed-path.patch
-        menu-shortcut-margin.patch)
-sha256sums=(SKIP
-            6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260
-            ceea66a8de55991f83e59ac78d873b75b1562521b505931459af59d3ab098d28
-            44ba69868e9065466e31d744f01d89143fbaba07dd626967748a1420ce5f7f16
-            779e8e137caca01953b83df9420a386d47c2873ed86c2f525ee3b33117bb14a4
-            1e50a1131a0a3409956f2f91b22ca271abfda5eed36c520c132d3431c882a4ad)
+        menu-shortcut-margin.patch
+        notifications-without-mako.patch)
+sha256sums=('SKIP'
+            '6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260'
+            'ceea66a8de55991f83e59ac78d873b75b1562521b505931459af59d3ab098d28'
+            '44ba69868e9065466e31d744f01d89143fbaba07dd626967748a1420ce5f7f16'
+            '779e8e137caca01953b83df9420a386d47c2873ed86c2f525ee3b33117bb14a4'
+            '1e50a1131a0a3409956f2f91b22ca271abfda5eed36c520c132d3431c882a4ad'
+            '88168ccee73f6fbf8e971460ef0f327e46c601ed6539ad0ff615098af2601abd')
 
 prepare() {
     cd hokku
     # The patches' README notes don't apply on the rewritten README.
     local p
     for p in session-pacman-and-vbox-only-pixman mime-bootstrap keymap-xkb-defaults \
-             mimeset-installed-path menu-shortcut-margin; do
+             mimeset-installed-path menu-shortcut-margin \
+             notifications-without-mako; do
         git apply --exclude=README.md "$srcdir/$p.patch"
     done
 }
@@ -104,7 +107,8 @@ package_hokku() {
           "$pkgdir/usr/share/applications/x-vnd.minimal.desktop" \
           "$pkgdir/usr/share/applications/x-vnd.minimal-noui.desktop"
 
-    local desktop_apps=(Deskbar DeskbarPreferences Tracker TrackerPreferences TrayBridge)
+    local desktop_apps=(Deskbar DeskbarPreferences Tracker TrackerPreferences TrayBridge
+                        notification_server)
     _pick desktop usr/bin/cosmoe-desktop.sh usr/share/wayland-sessions usr/share/cosmoe/deskbar \
         usr/share/applications/x-vnd.Be-TSKB.desktop \
         usr/share/applications/x-vnd.Cosmoe-Tracker.desktop \
@@ -142,8 +146,9 @@ package_hokku-apps() {
 package_hokku-desktop() {
     pkgdesc='Hokku desktop session: Tracker and Deskbar on labwc (Wayland)'
     depends=("hokku=$pkgver" "hokku-apps=$pkgver" glibc libgcc libstdc++ bash dbus labwc
-             mako polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
-    optdepends=('pipewire: sound' 'wireplumber: sound')
+             polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
+    optdepends=('pipewire: sound' 'wireplumber: sound'
+                'mako: notifications in sessions with HOKKU_NOTIFICATIONS=0')
     install=hokku-xattrs.install
     provides=(cosmoe-desktop)
     conflicts=(cosmoe-desktop)

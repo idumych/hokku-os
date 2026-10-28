@@ -1,0 +1,17 @@
+diff --git a/cosmoe-desktop.sh b/cosmoe-desktop.sh
+index 97213a3f..5fd40f75 100644
+--- a/cosmoe-desktop.sh
++++ b/cosmoe-desktop.sh
+@@ -88,7 +88,11 @@ if ! grep -qF "Terminal" "$HOME/.config/labwc/autostart" 2>/dev/null; then
+     Terminal &
+ fi
+ 
+-mako &
++# The Deskbar starts Hokku's notification_server, which also shows the
++# desktop's notifications; mako is for sessions that turn it off.
++if [ "${HOKKU_NOTIFICATIONS:-1}" = 0 ]; then
++    mako &
++fi
+ EOF
+ chmod 700 "$startup_script"
+ 

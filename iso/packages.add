@@ -6,7 +6,6 @@ hokku-os-settings
 
 # What cosmoe-desktop.sh starts besides Tracker and Deskbar
 labwc
-mako
 polkit-gnome
 xdg-desktop-portal
 xdg-desktop-portal-wlr
