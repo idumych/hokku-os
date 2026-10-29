@@ -6,7 +6,7 @@
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
 pkgver=0.9.0.r43.83eb822
-pkgrel=1
+pkgrel=2
 # The hokku branch (with the Gonx look, the Deskbar tray and notifications)
 _commit=83eb82219311805b92d93fb812f175e8316001cc
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
@@ -26,14 +26,18 @@ source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit"
         keymap-xkb-defaults.patch
         mimeset-installed-path.patch
         menu-shortcut-margin.patch
-        notifications-without-mako.patch)
+        notifications-without-mako.patch
+        polkit-agent-path.patch
+        app-list-without-duplicates.patch)
 sha256sums=('SKIP'
             '6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260'
             'ceea66a8de55991f83e59ac78d873b75b1562521b505931459af59d3ab098d28'
             '44ba69868e9065466e31d744f01d89143fbaba07dd626967748a1420ce5f7f16'
             '779e8e137caca01953b83df9420a386d47c2873ed86c2f525ee3b33117bb14a4'
             '1e50a1131a0a3409956f2f91b22ca271abfda5eed36c520c132d3431c882a4ad'
-            '88168ccee73f6fbf8e971460ef0f327e46c601ed6539ad0ff615098af2601abd')
+            '88168ccee73f6fbf8e971460ef0f327e46c601ed6539ad0ff615098af2601abd'
+            '1c90b81778cd8d1bba4c1fef81b0a5f7a470321bf5b40674bdd1fb633c1609d0'
+            'b633650f41ef4cfef4e08a52074f17f78e7a873e15499424ab85ada9f09d6b4a')
 
 prepare() {
     cd hokku
@@ -41,7 +45,7 @@ prepare() {
     local p
     for p in session-pacman-and-vbox-only-pixman mime-bootstrap keymap-xkb-defaults \
              mimeset-installed-path menu-shortcut-margin \
-             notifications-without-mako; do
+             notifications-without-mako polkit-agent-path app-list-without-duplicates; do
         git apply --exclude=README.md "$srcdir/$p.patch"
     done
 }
