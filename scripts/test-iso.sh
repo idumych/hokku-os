@@ -76,7 +76,12 @@ type)
 click)
     x=$(( $1 * 32767 / 1280 )); y=$(( $2 * 32767 / 800 ))
     ev() { printf '{"type":"%s","data":%s}' "$1" "$2"; }
-    qmp "{\"execute\":\"input-send-event\",\"arguments\":{\"events\":[$(ev abs '{"axis":"x","value":'$x'}'),$(ev abs '{"axis":"y","value":'$y'}')]}}"
+    move() { qmp "{\"execute\":\"input-send-event\",\"arguments\":{\"events\":[$(ev abs '{"axis":"x","value":'$1'}'),$(ev abs '{"axis":"y","value":'$2'}')]}}"; }
+    # Off by one first: the kernel drops a tablet position equal to the last one,
+    # so a click where the previous one was never moves a compositor started since
+    # (a new session), and the press lands wherever its own pointer is.
+    move $(( x > 0 ? x - 1 : 1 )) "$y"
+    move "$x" "$y"
     qmp '{"execute":"input-send-event","arguments":{"events":[{"type":"btn","data":{"down":true,"button":"left"}}]}}'
     sleep 0.15
     qmp '{"execute":"input-send-event","arguments":{"events":[{"type":"btn","data":{"down":false,"button":"left"}}]}}' ;;
