@@ -1,7 +1,7 @@
-From c66bbc3aec60407cc468c6bc14d607fabc273bd4 Mon Sep 17 00:00:00 2001
+From d6c650aca968d1b146077ec56cc602b87d52ee96 Mon Sep 17 00:00:00 2001
 From: idumych <idumych@gmail.com>
 Date: Tue, 27 Oct 2026 23:32:32 -0700
-Subject: [PATCH] install_with_mimeset.sh: record where the app is installed,
+Subject: [PATCH] install_with_mimeset.sh: record where the app is installed, 
  not DESTDIR
 
 mimeset records the path it found an app at in its MIME entry
@@ -17,12 +17,12 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 18 insertions(+)
 
 diff --git a/src/apps/install_with_mimeset.sh b/src/apps/install_with_mimeset.sh
-index bb57fce2..667f2254 100644
+index 7c95ca6b..4725aeac 100644
 --- a/src/apps/install_with_mimeset.sh
 +++ b/src/apps/install_with_mimeset.sh
-@@ -62,6 +62,24 @@ case "$(uname -s)" in
-         ;;
- esac
+@@ -69,6 +69,24 @@ if ! run_mimeset -a --mimedb "$tmpdir" --mimedb "$mime_db_path" "$dest_path"; th
+     exit 0
+ fi
  
 +# mimeset records where it found the app (META:PPATH, and the name it shows,
 +# META:S:DESC), which in a staged install is under DESTDIR: record where the
