@@ -17,6 +17,25 @@ installer). The Plasma desktop is replaced with:
 
 Not affiliated with or endorsed by CachyOS.
 
+## Screenshots
+
+From the 1.0 (Icefell) ISO, in QEMU at 1280x800.
+
+![The live desktop: Disks and Trash on the Tracker desktop, a Terminal, and the Deskbar in the top right corner with the brightness, volume and network icons in its tray](docs/screenshots/desktop.png)
+
+| | |
+|---|---|
+| ![The Deskbar menu with the Applications submenu open: CharacterMap, DeskCalc, Folio, Icon-O-Matic, Ringbinder, Sheath, ShowImage, StyledEdit and Terminal](docs/screenshots/deskbar-menu.png) | ![Two notifications beside the Deskbar: a mail with Reply and Mark read buttons, and a backup at 65% with a progress bar](docs/screenshots/notifications.png) |
+| The Deskbar menu: every Hokku app, plus Linux applications | Notifications from Linux apps, with their buttons and progress bars |
+| ![The brightness slider open under the sun icon in the Deskbar's tray, at 70%](docs/screenshots/brightness.png) | ![About this system: Hokku, what it adds, and the machine it runs on](docs/screenshots/about.png) |
+| The brightness slider (on a laptop; the VM's backlight was faked for this shot) | About this system |
+
+![Folio showing its Start Here page: a notebook tree on the left, Markdown with links in the middle, and the page's backlinks on the right](docs/screenshots/folio.png)
+
+![Sheath reading John 1 in the King James Version](docs/screenshots/sheath.png)
+
+![Ringbinder's calendar: a week across two ring-bound pages, with coloured tabs for To Do, Address, Calls, Planner, Notepad and Anniversary](docs/screenshots/ringbinder.png)
+
 ## Hokku OS and Renku OS
 
 Hokku OS and [Renku OS](https://github.com/RenkuOS/Source), the Haiku fork, run the same
