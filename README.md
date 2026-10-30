@@ -47,6 +47,15 @@ scripts/build-iso.sh
 scripts/test-iso.sh start && scripts/test-iso.sh shot desktop
 ```
 
+## Testing so far
+
+From 27 to 30 October 2026, about 14 ISOs were built and booted in QEMU (`scripts/test-iso.sh`,
+on a CPU without AVX so that nothing built for x86-64-v3 slips through). Testing them found
+and fixed about 35 bugs: some 30 in Hokku (login hangs, Tracker and Terminal freezes, the
+desktop and Deskbar lost after a text console, zombie apps, stale Deskbar entries, unfair
+semaphores, apps untyped on ext4…), all in the hokku branch, and 5 or 6 in this repository's
+packaging and build scripts. Real hardware has been tried far less than the VM.
+
 ## Known gaps
 
 - Installed systems don't get Hokku updates yet: there's no hosted `[hokku]` pacman repository.
