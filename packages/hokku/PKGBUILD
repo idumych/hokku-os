@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r75.d557d4e
+pkgver=0.9.0.r78.52cb745
 pkgrel=1
 # The hokku branch (with the Gonx look, the Deskbar tray and notifications)
-_commit=d557d4e6b715fa95039f3483bb996359ef82702b
+_commit=52cb745607b94f5b89f192fed4590028d236cb8f
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
@@ -86,6 +86,7 @@ package_hokku() {
     local desktop_apps=(Deskbar DeskbarPreferences Tracker TrackerPreferences TrayBridge
                         notification_server)
     _pick desktop usr/bin/cosmoe-desktop.sh usr/share/wayland-sessions usr/share/cosmoe/deskbar \
+        usr/share/xdg-desktop-portal \
         usr/share/applications/x-vnd.Be-TSKB.desktop \
         usr/share/applications/x-vnd.Cosmoe-Tracker.desktop \
         usr/share/applications/x-vnd.Haiku-Deskbar-Preferences.desktop \
@@ -97,7 +98,7 @@ package_hokku() {
     # Everything else with a window is an app; what stays in /usr/bin are command-line tools.
     local -A tools=()
     for t in addattr catattr collectcatkeys copyattr dumpcatalog finddir findpaths getarch \
-             gonx-theme hey linkcatkeys listattr listres message mimeset mkdepend rc roster \
+             gonx-theme hey hokku-theme linkcatkeys listattr listres message mimeset mkdepend rc roster \
              setcontrollook setdecor vicn2png xres; do
         tools[$t]=1
     done
@@ -124,6 +125,7 @@ package_hokku-desktop() {
     depends=("hokku=$pkgver" "hokku-apps=$pkgver" glibc libgcc libstdc++ bash dbus labwc
              polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
     optdepends=('pipewire: sound' 'wireplumber: sound'
+                "xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)"
                 'mako: notifications in sessions with HOKKU_NOTIFICATIONS=0')
     install=hokku-xattrs.install
     provides=(cosmoe-desktop)

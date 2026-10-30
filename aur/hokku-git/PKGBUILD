@@ -92,6 +92,7 @@ package_hokku-git() {
     local desktop_apps=(Deskbar DeskbarPreferences Tracker TrackerPreferences TrayBridge
                         notification_server)
     _pick desktop usr/bin/cosmoe-desktop.sh usr/share/wayland-sessions usr/share/cosmoe/deskbar \
+        usr/share/xdg-desktop-portal \
         usr/share/applications/x-vnd.Be-TSKB.desktop \
         usr/share/applications/x-vnd.Cosmoe-Tracker.desktop \
         usr/share/applications/x-vnd.Haiku-Deskbar-Preferences.desktop \
@@ -103,7 +104,7 @@ package_hokku-git() {
     # Everything else with a window is an app; what stays in /usr/bin are command-line tools.
     local -A tools=()
     for t in addattr catattr collectcatkeys copyattr dumpcatalog finddir findpaths getarch \
-             gonx-theme hey linkcatkeys listattr listres message mimeset mkdepend rc roster \
+             gonx-theme hey hokku-theme linkcatkeys listattr listres message mimeset mkdepend rc roster \
              setcontrollook setdecor vicn2png xres; do
         tools[$t]=1
     done
@@ -130,6 +131,7 @@ package_hokku-desktop-git() {
     depends=("hokku-git=$pkgver" "hokku-apps-git=$pkgver" glibc libgcc libstdc++ bash dbus
              labwc polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
     optdepends=('pipewire: sound' 'wireplumber: sound'
+                "xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)"
                 'mako: notifications in sessions with HOKKU_NOTIFICATIONS=0')
     install=hokku-xattrs.install
     provides=("hokku-desktop=$pkgver" cosmoe-desktop)
