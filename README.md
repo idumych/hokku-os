@@ -10,7 +10,7 @@ installer). The Plasma desktop is replaced with:
 |---|---|
 | Session | `hokku-session` (passes the system keyboard layout, as set by the installer or `localectl`, to labwc and Hokku), then `cosmoe-desktop.sh` from Hokku: labwc + Tracker + Deskbar (with a tray for other desktops' applets through TrayBridge: network, volume and Bluetooth start with the session; on a laptop, Hokku's own brightness slider) + Terminal, Xwayland for X11 apps, polkit-gnome, portals. Hokku's notification_server shows the desktop's notifications, and the Deskbar's menu lists every app, Hokku and Linux alike |
 | Apps | Hokku's (Terminal, StyledEdit, ShowImage, Icon-O-Matic, DeskCalc…, and the demos) and three more built on it: [Folio](https://github.com/idumych/folio) (notebooks in Markdown), [Sheath](https://github.com/idumych/sheath) (a Bible reader on SWORD) and [Ringbinder](https://github.com/idumych/ringbinder) (a tabbed personal organizer), in the Deskbar's Applications menu |
-| Look | [Gonx](https://github.com/idumych/gonx) throughout: new users start with what `gonx-theme apply` sets (window frame, controls, colours, fonts, plain desktop colour) from `/etc/skel`. labwc's frames for non-Be apps use Gonx's colours. `gonx-theme revert` goes back to Hokku's own look |
+| Look | [Gonx](https://github.com/idumych/gonx) throughout, or Haiku's own look: Appearance's Themes tab (or `hokku-theme apply Haiku`) switches the window frames, controls, colours, fonts and desktop, labwc's frames round other apps, and GTK 3 and Qt apps (Hokku's GTK and Kvantum themes of both looks) at once. New users start in Gonx, set up from `/etc/skel` |
 | Displays | wdisplays (resolution, scale, arrangement, rotation; in the Deskbar's applications menu) and kanshi, started from `/etc/xdg/labwc/autostart`, which applies the layouts in `~/.config/kanshi/config` at login |
 | Login | greetd + tuigreet (the live ISO logs `liveuser` in automatically) |
 | Installer | Calamares in offline mode: copies the live system to disk, then sets up greetd for Hokku |
@@ -35,6 +35,24 @@ From the 1.0 (Icefell) ISO, in QEMU at 1280x800.
 ![Sheath reading John 1 in the King James Version](docs/screenshots/sheath.png)
 
 ![Ringbinder's calendar: a week across two ring-bound pages, with coloured tabs for To Do, Address, Calls, Planner, Notepad and Anniversary](docs/screenshots/ringbinder.png)
+
+### Themes
+
+Haiku's look and Gonx, switched from Appearance's Themes tab. Each shot has a Hokku app
+(Appearance), a GTK 3 app (Network Connections) and a Qt app (Kvantum Manager), all in the
+same look, with labwc's frames round the other apps to match. From a development build of
+Hokku (2439048) on the 1.0 ISO.
+
+![Haiku's look: Appearance's Themes tab with Haiku in use in a yellow Haiku tab, Network Connections (GTK) and Kvantum Manager (Qt, its active theme Haiku) in Haiku's grey controls, on Haiku's blue desktop](docs/screenshots/theme-haiku.png)
+
+![Gonx: the same three windows in the Gonx look, Appearance in the Gonx tab and flap, Network Connections and Kvantum Manager in Gonx's controls and blue-grey selection, on the Gonx desktop, with the Hokku tab on the Deskbar](docs/screenshots/theme-gonx.png)
+
+The same Gonx controls in Hokku's Showcase, a GTK 3 app and a Qt app (the GTK and Qt test
+galleries copy Showcase's layout):
+
+| Hokku | GTK 3 | Qt (Kvantum) |
+|---|---|---|
+| ![Showcase's check boxes, radio buttons and buttons in Gonx](docs/screenshots/gonx-hokku.png) | ![GTK check boxes with the Gonx ✕, radio buttons, buttons and scroll bars](docs/screenshots/gonx-gtk.png) | ![Qt check boxes, radio buttons, buttons, scroll bar and fields in Gonx](docs/screenshots/gonx-qt.png) |
 
 ## Hokku OS and Renku OS
 
@@ -97,3 +115,6 @@ packaging and build scripts. Real hardware has been tried far less than the VM.
 - Calamares still shows CachyOS's branding and slideshow; the boot splash images are CachyOS's.
 - The installer's "log in automatically" option is ignored (greetd is set up without it).
 - x86_64 only (CachyOS has no arm64 edition).
+- Qt apps don't take the theme's font (Kvantum can't set fonts), so their text is larger than
+  Gonx's; GTK 4 and libadwaita apps keep their own look; a Qt app shows a newly chosen style
+  only after logging in again.
