@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r53.fd7c318
+pkgver=0.9.0.r55.4d41511
 pkgrel=1
 # The hokku branch (with the Gonx look, the Deskbar tray and notifications)
-_commit=fd7c318707d4a278f548bb5da3e9db4dec36d9b7
+_commit=4d415118908e568be0812ac8c33cf76a70278c32
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
