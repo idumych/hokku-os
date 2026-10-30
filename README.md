@@ -9,6 +9,7 @@ installer). The Plasma desktop is replaced with:
 | | |
 |---|---|
 | Session | `hokku-session` (passes the system keyboard layout, as set by the installer or `localectl`, to labwc and Hokku), then `cosmoe-desktop.sh` from Hokku: labwc + Tracker + Deskbar (with a tray for other desktops' applets through TrayBridge: network, volume and Bluetooth start with the session; on a laptop, Hokku's own brightness slider) + Terminal, Xwayland for X11 apps, polkit-gnome, portals. Hokku's notification_server shows the desktop's notifications, and the Deskbar's menu lists every app, Hokku and Linux alike |
+| Apps | Hokku's (Terminal, StyledEdit, ShowImage, Icon-O-Matic, DeskCalc…, and the demos) and three more built on it: [Folio](https://github.com/idumych/folio) (notebooks in Markdown), [Sheath](https://github.com/idumych/sheath) (a Bible reader on SWORD) and [Ringbinder](https://github.com/idumych/ringbinder) (a tabbed personal organizer), in the Deskbar's Applications menu |
 | Look | [Gonx](https://github.com/idumych/gonx) throughout: new users start with what `gonx-theme apply` sets (window frame, controls, colours, fonts, plain desktop colour) from `/etc/skel`. labwc's frames for non-Be apps use Gonx's colours. `gonx-theme revert` goes back to Hokku's own look |
 | Displays | wdisplays (resolution, scale, arrangement, rotation; in the Deskbar's applications menu) and kanshi, started from `/etc/xdg/labwc/autostart`, which applies the layouts in `~/.config/kanshi/config` at login |
 | Login | greetd + tuigreet (the live ISO logs `liveuser` in automatically) |
@@ -21,6 +22,8 @@ Not affiliated with or endorsed by CachyOS.
 ```
 packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split) from the hokku
                              branch, plus Hokku fixes not yet pushed, as *.patch
+packages/folio/, sheath/,     PKGBUILDs for those apps from their release tags, built against
+  ringbinder/                the system Hokku (their release AppImages bundle their own)
 packages/hokku-os-settings/  hokku-session, the Gonx settings for /etc/skel, labwc rc.xml
                              and its Gonx-coloured theme
 iso/                         overlay on CachyOS's archiso profile (CachyOS-Live-ISO, pinned commit)

@@ -4,5 +4,8 @@ repo/
 packages/*/src/
 packages/*/pkg/
 packages/*/hokku/
+packages/folio/folio/
+packages/sheath/sheath/
+packages/ringbinder/ringbinder/
 packages/*/*.pkg.tar.*
 packages/*/*.log

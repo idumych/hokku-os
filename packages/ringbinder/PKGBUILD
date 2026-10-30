@@ -1,0 +1,76 @@
+# Ringbinder, built against the system Hokku (its release AppImage bundles its
+# own), packaged as folio is.
+
+pkgname=ringbinder
+pkgver=1.3.0
+pkgrel=1
+pkgdesc='Tabbed personal organizer: diary, tasks, contacts, year planner, notes (a Hokku app)'
+arch=(x86_64)
+url='https://github.com/idumych/ringbinder'
+license=(MIT)
+depends=(hokku attr curl gcc-libs glibc hicolor-icon-theme)
+makedepends=(git)
+install=hokku-xattrs.install
+_app=Ringbinder
+_sig=application/x-vnd.Ringbinder
+_comment='A tabbed personal organizer: diary, tasks, contacts, calls, year planner, notes and anniversaries'
+_categories='Office;Calendar;ContactManagement;'
+_commit=77f02358acbfcc4b162da5c9e655edcb13d44c4c  # v1.3.0
+source=("$pkgname::git+$url.git#commit=$_commit"
+        hokku-xattrs.install)
+sha256sums=('SKIP'
+            '028577557d76b750e826537195db565b77c8dc9cc044407e2f72b1b4a0c2123b')
+
+build() {
+    cd $pkgname
+    make COSMOE_ROOT=/usr
+    _stage
+}
+
+# Install the app in staging, typed and with its signature in the system MIME
+# database, as Hokku's own apps are, and dump the xattrs that hold all that:
+# packages can't carry xattrs (and fakeroot hides them), so
+# hokku-xattrs.install restores them on the target.
+_stage() {
+    local stage="$srcdir/staging" db="$srcdir/mime_db" app="/usr/bin/$_app"
+    local name=${_sig#application/}
+    local entry="$stage/usr/share/cosmoe/mime_db/application/${name,,}" attr value
+    rm -rf "$stage" "$db"
+    install -Dm755 $_app "$stage$app"
+    mimeset -f --mimedb /usr/share/cosmoe/mime_db "$stage$app"
+    # Only the app's own entry (the database's names are lowercase): those of
+    # the types it handles belong to hokku.
+    mkdir -p "$db" "$stage/usr/share/cosmoe/mime_db/application"
+    mimeset -a --mimedb "$db" --mimedb /usr/share/cosmoe/mime_db "$stage$app"
+    cp -a "$db/application/${name,,}" "$entry"
+    # mimeset recorded where it found the app, which is in staging
+    for attr in META:PPATH META:S:DESC; do
+        value="$(catattr -d $attr "$entry" 2>/dev/null)" || continue
+        [ "$value" != "$stage$app" ] || addattr $attr "$app" "$entry"
+    done
+    (cd "$stage" && getfattr -R -P -h -d -m '^user\.' -e base64 *) >"$srcdir/xattrs.dump"
+    grep -q BEOS:APP_SIG "$srcdir/xattrs.dump"
+}
+
+package() {
+    cp -a "$srcdir/staging/." "$pkgdir"
+    install -Dm644 "$srcdir/xattrs.dump" "$pkgdir/usr/share/hokku/xattrs/$pkgname"
+    install -d "$pkgdir/usr/share/cosmoe/deskbar/menu/Applications"
+    ln -s ../../../../../bin/$_app "$pkgdir/usr/share/cosmoe/deskbar/menu/Applications/$_app"
+
+    cd $pkgname
+    install -Dm644 packaging/appimage/ringbinder.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/$pkgname.png"
+    install -Dm644 packaging/appimage/ringbinder.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/$pkgname.svg"
+    install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/${_sig#application/}.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=$_app
+Comment=$_comment
+Exec=$_app %F
+Icon=$pkgname
+Terminal=false
+Categories=$_categories
+StartupWMClass=${_sig#application/}
+EOF
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

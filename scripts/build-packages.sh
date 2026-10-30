@@ -37,7 +37,7 @@ arch-nspawn "$chroot/root" pacman -Syu --noconfirm
 
 mkdir -p "$repo"
 pkgs=("$@")
-[ ${#pkgs[@]} -gt 0 ] || pkgs=(hokku hokku-os-settings)
+[ ${#pkgs[@]} -gt 0 ] || pkgs=(hokku hokku-os-settings folio sheath ringbinder)
 
 for pkg in "${pkgs[@]}"; do
     (

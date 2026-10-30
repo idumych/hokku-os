@@ -4,6 +4,11 @@ hokku-apps
 hokku-desktop
 hokku-os-settings
 
+# Apps built on Hokku (packages/), in the Deskbar's Applications menu
+folio
+sheath
+ringbinder
+
 # What cosmoe-desktop.sh starts besides Tracker and Deskbar
 labwc
 polkit-gnome
