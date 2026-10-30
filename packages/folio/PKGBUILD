@@ -3,7 +3,7 @@
 
 pkgname=folio
 pkgver=0.1.5
-pkgrel=1
+pkgrel=2
 pkgdesc='Notebooks in Markdown with links that follow renames (a Hokku app)'
 arch=(x86_64)
 url='https://github.com/idumych/folio'
@@ -43,6 +43,7 @@ _stage() {
     mkdir -p "$db" "$stage/usr/share/cosmoe/mime_db/application"
     mimeset -a --mimedb "$db" --mimedb /usr/share/cosmoe/mime_db "$stage$app"
     cp -a "$db/application/${name,,}" "$entry"
+    chmod 644 "$entry"   # mimeset creates it 0600, unreadable to users
     # mimeset recorded where it found the app, which is in staging
     for attr in META:PPATH META:S:DESC; do
         value="$(catattr -d $attr "$entry" 2>/dev/null)" || continue
