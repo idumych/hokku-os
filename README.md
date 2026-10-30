@@ -21,7 +21,7 @@ Not affiliated with or endorsed by CachyOS.
 
 From the 1.0 (Icefell) ISO, in QEMU at 1280x800.
 
-![The live desktop: Disks and Trash on the Tracker desktop, a Terminal, and the Deskbar in the top right corner with the brightness, volume and network icons in its tray](docs/screenshots/desktop.png)
+![The desktop: About this system, GLTeapot spinning its red teapot at over 400 frames per second, and Pulse showing the four CPUs; Disks and Trash on the Tracker desktop, and the Deskbar in the top right corner with the brightness, volume and network icons in its tray](docs/screenshots/desktop.png)
 
 | | |
 |---|---|
