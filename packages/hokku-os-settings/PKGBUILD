@@ -3,12 +3,12 @@
 # (system keyboard layout), and labwc's theme and configuration to match.
 pkgname=hokku-os-settings
 pkgver=2026.10.31
-pkgrel=2
+pkgrel=3
 pkgdesc='Hokku OS desktop defaults: the Gonx look, the system keyboard layout, and labwc configured to match'
 arch=(any)
 url='https://github.com/idumych/hokku-os'
 license=(MIT)
-depends=(hokku-desktop labwc noto-fonts gawk kanshi xorg-xwayland)
+depends=(hokku-desktop labwc noto-fonts gawk kanshi xorg-xwayland kvantum)
 optdepends=('wdisplays: display settings (resolution, scale, arrangement, rotation)'
             'grim: Print Screen key'
             'brightnessctl: brightness keys'
@@ -20,9 +20,11 @@ optdepends=('wdisplays: display settings (resolution, scale, arrangement, rotati
 # running compositor, so it can't run before the session); regenerate them that way.
 # no-background.msg: a flattened empty BMessage, Tracker's "no background image".
 # appearance-theme: the theme Appearance's Themes tab shows in use (Gonx, as above).
+# gonx-gtk-settings.ini, gonx-qtct.conf, gonx-kvantum.kvconfig: what applying the Gonx
+# theme writes for GTK and Qt apps (Hokku's GTK and Kvantum themes of Gonx).
 source=(rc.xml autostart themerc hokku-session gonx-appearance gonx-fonts gonx-previous
         no-background.msg hokku-session.target kmix-hokku.desktop
-        appearance-theme)
+        appearance-theme gonx-gtk-settings.ini gonx-qtct.conf gonx-kvantum.kvconfig)
 sha256sums=('a25ab8ecea76f123b1c496b8ed6e298fd4aa637bec6c928e2aa893911a3d7792'
             '65b5102b3c908ed33a2a74b34b6139edec1e9239f3d91ab25b82ef6fe6dc8598'
             '19275f9f1178c01fec5a2b1beeb8da1811c5995d1e5a4db9c874cb62e13afdba'
@@ -33,7 +35,10 @@ sha256sums=('a25ab8ecea76f123b1c496b8ed6e298fd4aa637bec6c928e2aa893911a3d7792'
             'c762c5df28ea71fd036b20cdc38e9a8759c5a43bca7a3b11c2ab15189a50519c'
             '71da8a62878ef3ad64e2a4f58d67cb7eafdcb9033a1ddbda1de5fbd2c9bd7495'
             'fe522636ac79e75a18e3b1bf9c859b3fefe220b8d09d310b2fd2b5d73ac88610'
-            '4d50c951e1dce85b011da1e92e4b7ca124f2569b3167a032c6136ab7db20ca9f')
+            '4d50c951e1dce85b011da1e92e4b7ca124f2569b3167a032c6136ab7db20ca9f'
+            '0c8586876e4d107c2694b61d2ea5f1f4ea055e46efc7f095b6d3b40ff1ae9818'
+            '9f3d5c217122dbb842a4b34d4096ad9dc809d0798880a4aaa36e9d5b3ce3465b'
+            '3768081719b9f534c30a6a37fa54bb37b5e23ee5ac0bc829c85b67142f9a6494')
 
 package() {
     install -Dm644 rc.xml   "$pkgdir/etc/xdg/labwc/rc.xml"
@@ -49,5 +54,11 @@ package() {
     install -Dm644 gonx-previous "$skel/Gonx/previous"
     # what Appearance's Themes tab shows as in use
     install -Dm644 appearance-theme "$skel/Appearance theme"
+    local config="$pkgdir/etc/skel/.config"
+    install -Dm644 gonx-gtk-settings.ini "$config/gtk-3.0/settings.ini"
+    install -Dm644 gonx-gtk-settings.ini "$config/gtk-4.0/settings.ini"
+    install -Dm644 gonx-qtct.conf "$config/qt5ct/qt5ct.conf"
+    install -Dm644 gonx-qtct.conf "$config/qt6ct/qt6ct.conf"
+    install -Dm644 gonx-kvantum.kvconfig "$config/Kvantum/kvantum.kvconfig"
     install -Dm644 no-background.msg "$pkgdir/usr/share/hokku-os/no-background.msg"
 }

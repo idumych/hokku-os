@@ -32,6 +32,9 @@ xdg-user-dirs
 kanshi
 wdisplays
 
+# Qt apps in the Haiku and Gonx looks (Hokku's Kvantum themes)
+kvantum
+
 # X11 apps (labwc starts Xwayland when one opens)
 xorg-xwayland
 

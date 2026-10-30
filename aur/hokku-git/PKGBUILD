@@ -132,6 +132,7 @@ package_hokku-desktop-git() {
              labwc polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
     optdepends=('pipewire: sound' 'wireplumber: sound'
                 "xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)"
+                'kvantum: Qt apps in the Haiku and Gonx looks'
                 'mako: notifications in sessions with HOKKU_NOTIFICATIONS=0')
     install=hokku-xattrs.install
     provides=("hokku-desktop=$pkgver" cosmoe-desktop)

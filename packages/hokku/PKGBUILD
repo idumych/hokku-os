@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r78.52cb745
+pkgver=0.9.0.r79.22d4319
 pkgrel=1
 # The hokku branch (with the Gonx look, the Deskbar tray and notifications)
-_commit=52cb745607b94f5b89f192fed4590028d236cb8f
+_commit=22d4319e82b5355e1ffa3c860241cccebfb89721
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
@@ -126,6 +126,7 @@ package_hokku-desktop() {
              polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
     optdepends=('pipewire: sound' 'wireplumber: sound'
                 "xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)"
+                'kvantum: Qt apps in the Haiku and Gonx looks'
                 'mako: notifications in sessions with HOKKU_NOTIFICATIONS=0')
     install=hokku-xattrs.install
     provides=(cosmoe-desktop)
