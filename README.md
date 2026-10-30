@@ -17,6 +17,20 @@ installer). The Plasma desktop is replaced with:
 
 Not affiliated with or endorsed by CachyOS.
 
+## Hokku OS and Renku OS
+
+Hokku OS and [Renku OS](https://github.com/RenkuOS/Source), the Haiku fork, run the same
+API, so work done for one tends to land on the other. Notifications are one example:
+Hokku OS needed buttons on its notifications (Reply and Mark read for a mail, Snooze for a
+reminder). They were built in Hokku first, as `BNotification::AddAction()`. The same API was
+then proposed to Renku OS
+([RenkuOS/Source#233](https://github.com/RenkuOS/Source/pull/233)), which merged it the same
+day, so an app can add those actions on both systems from one source (Renku's notification
+server shows them as buttons once the second half, already written, lands). The other direction
+works too: [Gonx](https://github.com/idumych/gonx), the look Hokku OS wears throughout, was
+made for Renku OS, and Folio, Sheath and Ringbinder are Renku OS apps that Hokku OS builds
+from the same source.
+
 ## Layout
 
 ```
