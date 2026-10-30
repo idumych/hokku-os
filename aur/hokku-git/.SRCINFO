@@ -1,0 +1,117 @@
+pkgbase = hokku-git
+	pkgdesc = BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)
+	pkgver = 0.9.0.20261013.r127.gd557d4e
+	pkgrel = 1
+	url = https://github.com/idumych/hokku
+	arch = x86_64
+	license = MIT
+	makedepends = git
+	makedepends = meson
+	makedepends = ninja
+	makedepends = flex
+	makedepends = bison
+	makedepends = attr
+	makedepends = wayland-protocols
+	makedepends = cairo
+	makedepends = fontconfig
+	makedepends = glib2
+	makedepends = glibc
+	makedepends = icu
+	makedepends = libgcc
+	makedepends = libglvnd
+	makedepends = libicns
+	makedepends = libjpeg-turbo
+	makedepends = libpng
+	makedepends = libraw
+	makedepends = librsvg
+	makedepends = libstdc++
+	makedepends = libtiff
+	makedepends = libwebp
+	makedepends = libx11
+	makedepends = libxcursor
+	makedepends = libxkbcommon
+	makedepends = libxkbcommon-x11
+	makedepends = libxrandr
+	makedepends = openssl
+	makedepends = pango
+	makedepends = pixman
+	makedepends = wayland
+	makedepends = zlib
+	source = hokku::git+https://github.com/idumych/hokku.git#branch=hokku
+	source = hokku-xattrs.install
+	sha256sums = SKIP
+	sha256sums = 028577557d76b750e826537195db565b77c8dc9cc044407e2f72b1b4a0c2123b
+
+pkgname = hokku-git
+	install = hokku-xattrs.install
+	depends = cairo
+	depends = fontconfig
+	depends = glib2
+	depends = glibc
+	depends = icu
+	depends = libgcc
+	depends = libglvnd
+	depends = libicns
+	depends = libjpeg-turbo
+	depends = libpng
+	depends = libraw
+	depends = librsvg
+	depends = libstdc++
+	depends = libtiff
+	depends = libwebp
+	depends = libx11
+	depends = libxcursor
+	depends = libxkbcommon
+	depends = libxkbcommon-x11
+	depends = libxrandr
+	depends = openssl
+	depends = pango
+	depends = pixman
+	depends = wayland
+	depends = zlib
+	depends = adwaita-icon-theme
+	depends = attr
+	depends = xcursor-themes
+	provides = hokku=0.9.0.20261013.r127.gd557d4e
+	provides = cosmoe
+	conflicts = hokku
+	conflicts = cosmoe
+
+pkgname = hokku-apps-git
+	pkgdesc = Haiku apps and preferences running on Hokku (Terminal, StyledEdit, ShowImage, Icon-O-Matic…)
+	install = hokku-xattrs.install
+	depends = hokku-git=0.9.0.20261013.r127.gd557d4e
+	depends = cairo
+	depends = glib2
+	depends = glibc
+	depends = libgcc
+	depends = libstdc++
+	depends = pango
+	depends = hicolor-icon-theme
+	provides = hokku-apps=0.9.0.20261013.r127.gd557d4e
+	provides = cosmoe-apps
+	conflicts = hokku-apps
+	conflicts = cosmoe-apps
+
+pkgname = hokku-desktop-git
+	pkgdesc = Hokku desktop session: Tracker and Deskbar on labwc (Wayland)
+	install = hokku-xattrs.install
+	depends = hokku-git=0.9.0.20261013.r127.gd557d4e
+	depends = hokku-apps-git=0.9.0.20261013.r127.gd557d4e
+	depends = glibc
+	depends = libgcc
+	depends = libstdc++
+	depends = bash
+	depends = dbus
+	depends = labwc
+	depends = polkit-gnome
+	depends = xdg-desktop-portal
+	depends = xdg-desktop-portal-wlr
+	depends = hicolor-icon-theme
+	optdepends = pipewire: sound
+	optdepends = wireplumber: sound
+	optdepends = mako: notifications in sessions with HOKKU_NOTIFICATIONS=0
+	provides = hokku-desktop=0.9.0.20261013.r127.gd557d4e
+	provides = cosmoe-desktop
+	conflicts = hokku-desktop
+	conflicts = cosmoe-desktop

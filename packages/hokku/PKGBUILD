@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r66.e63a703
+pkgver=0.9.0.r75.d557d4e
 pkgrel=1
 # The hokku branch (with the Gonx look, the Deskbar tray and notifications)
-_commit=e63a70378c99cada257ea8055a27dbb3408477b0
+_commit=d557d4e6b715fa95039f3483bb996359ef82702b
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
@@ -19,36 +19,8 @@ _libdeps=(cairo fontconfig glib2 glibc icu libgcc libglvnd libicns libjpeg-turbo
           libraw librsvg libstdc++ libtiff libwebp libx11 libxcursor libxkbcommon libxkbcommon-x11
           libxrandr openssl pango pixman wayland zlib)
 makedepends=(git meson ninja flex bison wayland-protocols "${_libdeps[@]}")
-# Hokku fixes not pushed to github.com/idumych/hokku yet; drop each once it's on the hokku branch.
-source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit"
-        session-pacman-and-vbox-only-pixman.patch
-        mime-bootstrap.patch
-        keymap-xkb-defaults.patch
-        mimeset-installed-path.patch
-        menu-shortcut-margin.patch
-        notifications-without-mako.patch
-        polkit-agent-path.patch
-        app-list-without-duplicates.patch)
-sha256sums=('SKIP'
-            '6133418f9a68e0413cdf3d5ec4fa180680956e0efa9dec0b053753f3b001a260'
-            'ceea66a8de55991f83e59ac78d873b75b1562521b505931459af59d3ab098d28'
-            '44ba69868e9065466e31d744f01d89143fbaba07dd626967748a1420ce5f7f16'
-            '41fb62a9c394c97c49eaa39605e95bd59dbb013b38dda7ebc406b87cbe78a4f3'
-            '1e50a1131a0a3409956f2f91b22ca271abfda5eed36c520c132d3431c882a4ad'
-            '88168ccee73f6fbf8e971460ef0f327e46c601ed6539ad0ff615098af2601abd'
-            '1c90b81778cd8d1bba4c1fef81b0a5f7a470321bf5b40674bdd1fb633c1609d0'
-            'b633650f41ef4cfef4e08a52074f17f78e7a873e15499424ab85ada9f09d6b4a')
-
-prepare() {
-    cd hokku
-    # The patches' README notes don't apply on the rewritten README.
-    local p
-    for p in session-pacman-and-vbox-only-pixman mime-bootstrap keymap-xkb-defaults \
-             mimeset-installed-path menu-shortcut-margin \
-             notifications-without-mako polkit-agent-path app-list-without-duplicates; do
-        git apply --exclude=README.md "$srcdir/$p.patch"
-    done
-}
+source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit")
+sha256sums=('SKIP')
 
 build() {
     arch-meson hokku build -Denable_unit_test_compile=false

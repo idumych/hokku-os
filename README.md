@@ -53,8 +53,10 @@ from the same source.
 ## Layout
 
 ```
-packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split) from the hokku
-                             branch, plus Hokku fixes not yet pushed, as *.patch
+packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split) from a pinned
+                             commit of the hokku branch
+aur/hokku-git/               the same split for the AUR, from the hokku branch's latest commit
+                             (hokku-git, hokku-apps-git, hokku-desktop-git; no Hokku OS apps)
 packages/folio/, sheath/,     PKGBUILDs for those apps from their release tags, built against
   ringbinder/                the system Hokku (their release AppImages bundle their own)
 packages/hokku-os-settings/  hokku-session, the Gonx settings for /etc/skel, labwc rc.xml
