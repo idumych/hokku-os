@@ -6,7 +6,7 @@
 # scripts/build-packages.sh fills. Unlike CachyOS's buildiso.sh it doesn't patch
 # the host's /usr/bin/mkarchiso.
 #
-#   scripts/build-packages.sh      # first: hokku, hokku-apps, hokku-desktop, hokku-os-settings
+#   scripts/build-packages.sh      # first: everything under packages/ (checked below)
 #   scripts/build-iso.sh           # asks for sudo once, for mkarchiso
 #
 # Output: out/hokku-os-YYYY.MM.DD-x86_64.iso (+ .sha256)
@@ -29,6 +29,25 @@ for tool in mkarchiso git curl; do
     command -v "$tool" >/dev/null || die "$tool is missing (sudo pacman -S --needed archiso git curl)"
 done
 [ -f "$repo/hokku.db" ] || die "no local repository at $repo; run scripts/build-packages.sh first"
+
+# Every package under packages/ must be in the repository at its PKGBUILD's
+# version: else mkarchiso fails halfway ("target not found"), or the ISO gets
+# an old build.
+in_db="$(tar -tzf "$repo/hokku.db" | sed -n 's|/$||p')"
+stale=()
+for dir in "$root"/packages/*/; do
+    for file in $(cd "$dir" && makepkg --packagelist); do
+        file="${file##*/}"
+        # name-pkgver-pkgrel, as the database names its entries
+        entry="${file%-*.pkg.tar.*}"
+        if [ ! -f "$repo/$file" ] || ! grep -qxF "$entry" <<<"$in_db"; then
+            stale+=("$(basename "$dir")")
+            break
+        fi
+    done
+done
+[ ${#stale[@]} -eq 0 ] \
+    || die "not built at their PKGBUILD's version: ${stale[*]}; run scripts/build-packages.sh ${stale[*]}"
 
 # 1. CachyOS's profile at the pinned commit
 if [ ! -d "$upstream/.git" ]; then
