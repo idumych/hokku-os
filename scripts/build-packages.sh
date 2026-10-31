@@ -43,11 +43,19 @@ for pkg in "${pkgs[@]}"; do
     (
         cd "$root/packages/$pkg"
         # makepkg installs depends too, and the chroot only has Arch's repos:
-        # hand it our own packages (all of them, they depend on each other).
+        # hand it our own packages (they depend on each other), but not an
+        # earlier build of the one being built: installed, it would be there
+        # already (an app's type in the MIME database, which mimeset then
+        # leaves out of the package), and debug packages aren't needed.
         installs=()
         if (source PKGBUILD; printf '%s\n' "${depends[@]}" "${makedepends[@]}") | grep -q '^hokku'; then
+            own=" $(source PKGBUILD; echo "${pkgname[@]}") "
             for f in "$repo"/*.pkg.tar.zst; do
-                [ -e "$f" ] && installs+=(-I "$f")
+                [ -e "$f" ] || continue
+                name="$(bsdtar -xOf "$f" .PKGINFO | sed -n 's/^pkgname = //p')"
+                case "$own" in *" $name "*) continue ;; esac
+                [[ "$name" == *-debug ]] && continue
+                installs+=(-I "$f")
             done
         fi
         makechrootpkg -c -r "$chroot" "${installs[@]}"
