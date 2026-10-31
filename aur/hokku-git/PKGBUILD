@@ -111,7 +111,8 @@ package_hokku-git() {
     for t in "$pkgdir"/usr/bin/*; do
         [ -n "${tools[${t##*/}]:-}" ] || _pick apps "usr/bin/${t##*/}"
     done
-    _pick apps usr/share/applications usr/share/icons
+    # (the cursor themes, Hokku and Hokku-Shadow, stay with the GTK and Kvantum ones)
+    _pick apps usr/share/applications usr/share/icons/hicolor
     _xattrs
 }
 

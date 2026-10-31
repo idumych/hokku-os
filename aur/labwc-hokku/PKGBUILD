@@ -5,7 +5,7 @@
 # On a labwc release: bump pkgver, rebase the patch and update its b2sum.
 pkgname=labwc-hokku
 pkgver=0.20.2
-pkgrel=5
+pkgrel=6
 pkgdesc='stacking wayland compositor with look and feel from openbox, with Hokku window frames'
 url="https://github.com/labwc/labwc"
 arch=('x86_64')
@@ -42,7 +42,7 @@ optdepends=(
 provides=("labwc=$pkgver")
 conflicts=(labwc)
 # Hokku's frame code, from the commit packages/hokku builds
-_hokku=7516f3a81329a21c24fa2169a056637ff6595844
+_hokku=9d3359d0427b51850698f9693bf3f4d7eb890709
 _frames="https://raw.githubusercontent.com/idumych/hokku/$_hokku"
 source=("git+https://github.com/labwc/labwc#tag=${pkgver}"
         "gonx-frame.c::$_frames/src/backends/wayland/shared/gonx-frame.c"
@@ -53,11 +53,11 @@ source=("git+https://github.com/labwc/labwc#tag=${pkgver}"
         labwc-hokku-frames.patch)
 b2sums=('8f8023a5bc31e7fe52d80f1c99b02c59bd9ff9a3779145b9077dac3c2c4a78e291b99dc770039f90ac1ff548ff53adfeddad35de07f5d14d736b4c562ce3554f'
         'b9681109df2d2dcdc49f97ae71b09d81ff64e2a05f8a313d9c288136d96e0f3e13f51e72f7a6c3518bf38da1bb573a5dbf4990a7154c6a95a15a427ba42b545f'
-        '742e5e1301b74fd45cdcc16f57d4db5200a85d764375a2faa188395230c62491828fcb5ab7e015f097d8f082333e2a5ba06e9f9160e6677ff451afefeaac4268'
+        'e1ee552f9db1ef1141196b8afe450f67b9abe5b3b8e73588c7e9877e552ea9246d7f8c9d156dd047ce00df305522ba26c2346fd8e552ba07aaa28146abbe51ff'
         'c19c56b1aa81886c49aa43fb6eee151737253f80477736f483c38d32d13b14c62d1e62d6140f7ee02b20664d8f481b2caeb212f5fb63a9463684b1e770f70f41'
         '80f0f835367df4f4bfef1f9aecb6dd0e2c95615469cacbb52e8147ce6f02e108409aa4a5b8e94f99988c369168dfe7115eba10c5c80e812f5350f7f5da91360f'
         '4a7aa6e21fa601e01b560a49923f9b44025c9acb070a59272ebb65e688d20d5fca971497ba406653993e631048a5a27c74cb987bda3cc725e8fc3134d0503885'
-        'b5636cc5883379d43ddb3428be4227e1f07b2437a9dfc06b66aa2b28c33b5ee2996850bd08a27e627e623bf0b04ce5fbfd4a9d0fbdf101a653c644baed633e2b')
+        'f20b34dd868bbcbe18f8639df22fa3e43a06efb4d380b1dd7cf8dd8bc9b4320100b39980efb1844899f54355a460fc301f6479dc292045594326ac9080d925eb')
 
 prepare() {
   patch -d labwc -Np1 < labwc-hokku-frames.patch

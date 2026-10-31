@@ -1,0 +1,5 @@
+# labwc's environment for new users. Hokku keeps the keyboard layout here
+# (XKB_DEFAULT_*), and Appearance the cursor theme: BeOS's pointing hand,
+# with a shadow (Hokku-Shadow) or without (Hokku), as its Look and feel tab
+# says. labwc draws the standard cursors of Hokku, GTK and Qt apps alike.
+XCURSOR_THEME=Hokku-Shadow

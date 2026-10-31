@@ -3,7 +3,7 @@
 # (system keyboard layout), and labwc's theme and configuration to match.
 pkgname=hokku-os-settings
 pkgver=2026.10.31
-pkgrel=4
+pkgrel=5
 pkgdesc='Hokku OS desktop defaults: the Gonx look, the system keyboard layout, and labwc configured to match'
 arch=(any)
 url='https://github.com/idumych/hokku-os'
@@ -20,11 +20,13 @@ optdepends=('wdisplays: display settings (resolution, scale, arrangement, rotati
 # running compositor, so it can't run before the session); regenerate them that way.
 # no-background.msg: a flattened empty BMessage, Tracker's "no background image".
 # appearance-theme: the theme Appearance's Themes tab shows in use (Gonx, as above).
+# labwc-environment: the cursor theme the Gonx theme and Appearance's shadows setting give.
 # gonx-gtk-settings.ini, gonx-qtct.conf, gonx-kvantum.kvconfig: what applying the Gonx
 # theme writes for GTK and Qt apps (Hokku's GTK and Kvantum themes of Gonx).
 source=(rc.xml autostart themerc hokku-session gonx-appearance gonx-fonts gonx-previous
         no-background.msg hokku-session.target kmix-hokku.desktop
-        appearance-theme gonx-gtk-settings.ini gonx-qtct.conf gonx-kvantum.kvconfig)
+        appearance-theme gonx-gtk-settings.ini gonx-qtct.conf gonx-kvantum.kvconfig
+        labwc-environment)
 sha256sums=('a25ab8ecea76f123b1c496b8ed6e298fd4aa637bec6c928e2aa893911a3d7792'
             '65b5102b3c908ed33a2a74b34b6139edec1e9239f3d91ab25b82ef6fe6dc8598'
             '67dd72d7bc0019ce6de7ea31a97708c96d95c872761f967bfbb0127f43aabab8'
@@ -36,9 +38,10 @@ sha256sums=('a25ab8ecea76f123b1c496b8ed6e298fd4aa637bec6c928e2aa893911a3d7792'
             '71da8a62878ef3ad64e2a4f58d67cb7eafdcb9033a1ddbda1de5fbd2c9bd7495'
             'fe522636ac79e75a18e3b1bf9c859b3fefe220b8d09d310b2fd2b5d73ac88610'
             '4d50c951e1dce85b011da1e92e4b7ca124f2569b3167a032c6136ab7db20ca9f'
-            '0c8586876e4d107c2694b61d2ea5f1f4ea055e46efc7f095b6d3b40ff1ae9818'
+            '586c5d0a8829b9636911b955742757b8e0f5a9c871b43f19b73397a76444691a'
             '9f3d5c217122dbb842a4b34d4096ad9dc809d0798880a4aaa36e9d5b3ce3465b'
-            '3768081719b9f534c30a6a37fa54bb37b5e23ee5ac0bc829c85b67142f9a6494')
+            '3768081719b9f534c30a6a37fa54bb37b5e23ee5ac0bc829c85b67142f9a6494'
+            '426110fe4cb7f06799794d8fee00ff374e16287a6572d8f9992607c70dbd9775')
 
 package() {
     install -Dm644 rc.xml   "$pkgdir/etc/xdg/labwc/rc.xml"
@@ -60,5 +63,6 @@ package() {
     install -Dm644 gonx-qtct.conf "$config/qt5ct/qt5ct.conf"
     install -Dm644 gonx-qtct.conf "$config/qt6ct/qt6ct.conf"
     install -Dm644 gonx-kvantum.kvconfig "$config/Kvantum/kvantum.kvconfig"
+    install -Dm644 labwc-environment "$config/labwc/environment"
     install -Dm644 no-background.msg "$pkgdir/usr/share/hokku-os/no-background.msg"
 }

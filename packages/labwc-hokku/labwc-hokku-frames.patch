@@ -10,6 +10,8 @@ and the border resizes, as on Hokku's own windows.
 
 window.decorator.font sets the title font (a Pango description such as
 "Noto Sans Bold 12px"); without it, rc.xml's ActiveWindow font is used.
+window.decorator.shadow: no leaves the frames' shadow out (Hokku's
+Appearance writes it from its shadows setting).
 The tab colours are window.*.title.bg.color, the title window.*.label.text.color
 and Haiku's border window.*.border.color.
 
@@ -72,7 +74,7 @@ index 9c61747..7951406 100644
  bool ssd_debug_is_root_node(const struct ssd *ssd, struct wlr_scene_node *node);
  const char *ssd_debug_get_node_name(const struct ssd *ssd,
 diff --git a/include/theme.h b/include/theme.h
-index 2fb499a..96acf31 100644
+index 2fb499a..7589908 100644
 --- a/include/theme.h
 +++ b/include/theme.h
 @@ -30,6 +30,13 @@ enum lab_justification {
@@ -89,13 +91,14 @@ index 2fb499a..96acf31 100644
  struct theme_snapping_overlay {
  	bool bg_enabled;
  	bool border_enabled;
-@@ -73,6 +80,10 @@ struct theme {
+@@ -73,6 +80,11 @@ struct theme {
  	float window_toggled_keybinds_color[4];
  	enum lab_justification window_label_text_justify;
  
-+	/* window.decorator and window.decorator.font */
++	/* window.decorator, window.decorator.font and window.decorator.shadow */
 +	enum lab_hokku_frame window_hokku_frame;
 +	char *window_hokku_frame_font;
++	bool window_hokku_frame_shadow;
 +
  	/* buttons */
  	int window_button_width;
@@ -248,10 +251,10 @@ index 3840b10..e215cdc 100644
  	 * Convert all output usable areas that the
 diff --git a/src/ssd/ssd-hokku.c b/src/ssd/ssd-hokku.c
 new file mode 100644
-index 0000000..d04c8e1
+index 0000000..d56e00a
 --- /dev/null
 +++ b/src/ssd/ssd-hokku.c
-@@ -0,0 +1,705 @@
+@@ -0,0 +1,706 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/*
@@ -431,6 +434,7 @@ index 0000000..d04c8e1
 +	describe_font(style->small_title_font, sizeof(style->small_title_font),
 +		theme, /* plain */ true);
 +	style->haiku = theme->window_hokku_frame == LAB_HOKKU_FRAME_HAIKU;
++	style->shadow = theme->window_hokku_frame_shadow;
 +}
 +
 +void
@@ -671,7 +675,7 @@ index 0000000..d04c8e1
 +
 +	/* as on Hokku's own windows, none when the window fills the screen */
 +	int shadow_right = 0, shadow_bottom = 0;
-+	if (view->maximized != VIEW_AXIS_BOTH) {
++	if (frame->style.shadow && view->maximized != VIEW_AXIS_BOTH) {
 +		gonx_frame_shadow_extent(&shadow_right, &shadow_bottom);
 +	}
 +	struct gonx_layout layout;
@@ -1078,7 +1082,7 @@ index e2ab637..632c66b 100644
  	float *color = enable
  		? rc.theme->window_toggled_keybinds_color
 diff --git a/src/theme.c b/src/theme.c
-index 71e577c..c25dfc6 100644
+index 71e577c..17eba73 100644
 --- a/src/theme.c
 +++ b/src/theme.c
 @@ -516,6 +516,18 @@ parse_justification(const char *str)
@@ -1100,16 +1104,17 @@ index 71e577c..c25dfc6 100644
  /*
   * We generally use Openbox defaults, but if no theme file can be found it's
   * better to populate the theme variables with some sane values as no-one
-@@ -554,6 +566,8 @@ theme_builtin(struct theme *theme)
+@@ -554,6 +566,9 @@ theme_builtin(struct theme *theme)
  	parse_hexstr("#000000", theme->window[SSD_ACTIVE].label_text_color);
  	parse_hexstr("#000000", theme->window[SSD_INACTIVE].label_text_color);
  	theme->window_label_text_justify = parse_justification("Center");
 +	theme->window_hokku_frame = LAB_HOKKU_FRAME_NONE;
 +	theme->window_hokku_frame_font = NULL;
++	theme->window_hokku_frame_shadow = true;
  
  	theme->window_button_width = 26;
  	theme->window_button_height = 26;
-@@ -766,6 +780,12 @@ entry(struct theme *theme, const char *key, const char *value)
+@@ -766,6 +781,15 @@ entry(struct theme *theme, const char *key, const char *value)
  	if (match_glob(key, "window.label.text.justify")) {
  		theme->window_label_text_justify = parse_justification(value);
  	}
@@ -1119,10 +1124,13 @@ index 71e577c..c25dfc6 100644
 +	if (match_glob(key, "window.decorator.font")) {
 +		xstrdup_replace(theme->window_hokku_frame_font, value);
 +	}
++	if (match_glob(key, "window.decorator.shadow")) {
++		set_bool(value, &theme->window_hokku_frame_shadow);
++	}
  
  	if (match_glob(key, "window.button.width")) {
  		theme->window_button_width = atoi(value);
-@@ -1812,6 +1832,14 @@ post_processing(struct theme *theme)
+@@ -1812,6 +1836,14 @@ post_processing(struct theme *theme)
  		fill_colors_with_osd_theme(theme,
  			theme->snapping_overlay_edge.border_color);
  	}
@@ -1137,7 +1145,7 @@ index 71e577c..c25dfc6 100644
  }
  
  void
-@@ -1868,6 +1896,8 @@ theme_finish(struct theme *theme)
+@@ -1868,6 +1900,8 @@ theme_finish(struct theme *theme)
  		}
  	}
  
