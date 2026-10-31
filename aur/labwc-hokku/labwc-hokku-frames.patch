@@ -18,7 +18,9 @@ A button held down is drawn pressed while the pointer is on it, as on Haiku.
 The keybind-inhibit indicator is a line along the border's top in
 window.active.indicator.toggled-keybind.color. The invisible resize areas
 round the window (resizeMinimumArea) lie round the frame's border, beside
-Gonx's flap rather than outside it, and these frames have no drop shadows.
+Gonx's flap rather than outside it. labwc's own drop shadows give way to the
+Gonx mockups' shadow, which Hokku's frame code paints past the frame's right
+and bottom edges (none when maximized), as on Hokku's own windows.
 
 ---
 diff --git a/include/ssd-internal.h b/include/ssd-internal.h
@@ -245,10 +247,10 @@ index 3840b10..e215cdc 100644
  	 * Convert all output usable areas that the
 diff --git a/src/ssd/ssd-hokku.c b/src/ssd/ssd-hokku.c
 new file mode 100644
-index 0000000..fcb1a28
+index 0000000..c63afe5
 --- /dev/null
 +++ b/src/ssd/ssd-hokku.c
-@@ -0,0 +1,649 @@
+@@ -0,0 +1,667 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/*
@@ -260,7 +262,8 @@ index 0000000..fcb1a28
 + * ssd->tree (LAB_NODE_SSD_ROOT)
 + * +--border
 + * |  +--four buffers the frame is painted into: above, below and beside
-+ * |  |  the window
++ * |  |  the window, reaching past the frame on the right and below for its
++ * |  |  shadow
 + * |  +--four invisible rects taking the pointer on the border, which
 + * |     ssd_get_resizing_type() places with the frame's own hit test
 + * +--titlebar (LAB_NODE_TITLEBAR)
@@ -333,6 +336,8 @@ index 0000000..fcb1a28
 +	struct gonx_layout layout;
 +	/* the frame's thickness; the frame's (0, 0) is at -left, -top */
 +	struct border margin;
++	/* how far its shadow reaches past it, right and down */
++	int shadow;
 +	char *title;
 +	bool active;
 +	bool dirty;
@@ -526,6 +531,15 @@ index 0000000..fcb1a28
 +	} else {
 +		gonx_frame_paint(cairo, &frame->layout, &frame->style,
 +			frame->title, frame->active, frame->pressed);
++		if (frame->shadow > 0) {
++			const struct gonx_rect clip = {
++				paint->box.x, paint->box.y,
++				paint->box.x + paint->box.width - 1,
++				paint->box.y + paint->box.height - 1,
++			};
++			gonx_frame_paint_shadow(cairo, &frame->layout,
++				&frame->style, &clip);
++		}
 +	}
 +	cairo_destroy(cairo);
 +	cairo_surface_flush(buffer->surface);
@@ -621,22 +635,28 @@ index 0000000..fcb1a28
 +		frame->dirty = true;
 +	}
 +
++	/* as on Hokku's own windows, none when the window fills the screen */
++	int shadow = view->maximized == VIEW_AXIS_BOTH ? 0 : GONX_SHADOW_SIZE;
 +	struct gonx_layout layout;
 +	lay_out(frame, view, &layout);
-+	if (!frame->dirty && !memcmp(&layout, &frame->layout, sizeof(layout))) {
++	if (!frame->dirty && shadow == frame->shadow
++			&& !memcmp(&layout, &frame->layout, sizeof(layout))) {
 +		return;
 +	}
 +	frame->layout = layout;
++	frame->shadow = shadow;
 +	frame->dirty = false;
 +
 +	const struct gonx_layout *l = &frame->layout;
 +	const struct border m = frame->margin;
 +	const int middle = l->height - m.top - m.bottom;
++	const int s = shadow;
 +	const struct wlr_box boxes[HOKKU_PART_COUNT] = {
-+		[HOKKU_TOP] = { 0, 0, l->width, m.top },
-+		[HOKKU_BOTTOM] = { 0, l->height - m.bottom, l->width, m.bottom },
++		[HOKKU_TOP] = { 0, 0, l->width + s, m.top },
++		[HOKKU_BOTTOM] = { 0, l->height - m.bottom, l->width + s,
++			m.bottom + s },
 +		[HOKKU_LEFT] = { 0, m.top, m.left, middle },
-+		[HOKKU_RIGHT] = { l->width - m.right, m.top, m.right, middle },
++		[HOKKU_RIGHT] = { l->width - m.right, m.top, m.right + s, middle },
 +	};
 +	for (int i = 0; i < HOKKU_PART_COUNT; i++) {
 +		place_paint(frame, frame->paint[i], boxes[i]);
