@@ -19,7 +19,7 @@ The keybind-inhibit indicator is a line along the border's top in
 window.active.indicator.toggled-keybind.color. The invisible resize areas
 round the window (resizeMinimumArea) lie round the frame's border, beside
 Gonx's flap rather than outside it. labwc's own drop shadows give way to the
-deep shadow of Hokku's frames, which Hokku's frame code paints past the
+shadow of Hokku's frames, which Hokku's frame code paints past the
 frame's right and bottom edges (none when maximized), as on Hokku's own
 windows; each strip keeps its shadow until the frame's layout changes.
 
