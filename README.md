@@ -49,14 +49,14 @@ Hokku (2439048) on the 1.0 ISO.
 
 Other apps' windows get the theme's frame too: labwc-hokku draws Hokku's own Haiku or Gonx
 tab and border round them, so a GTK or Qt window moves, zooms, closes and resizes like a Hokku
-one. Every window casts the shadow of the Gonx mockups, of a light above and to the left:
-four pixels past the frame's right and bottom edges, none when it fills the screen. Below,
-Appearance (Hokku), Network Connections (GTK 3) and V4L2 Test Bench (Qt 6), from Hokku
-ec04409 and labwc-hokku on the 1.0 ISO:
+one. Every window casts a deep, soft shadow, of a light high up and to the left, as if it
+floated well above the desktop: about 30 pixels past the frame's right edge and 40 below,
+none when it fills the screen. Below, Appearance (Hokku), Network Connections (GTK 3) and
+V4L2 Test Bench (Qt 6), from Hokku 3d1b7f6 and labwc-hokku on the 1.0 ISO:
 
-![Haiku's look: Appearance with Haiku in use, Network Connections and V4L2 Test Bench, each in Haiku's frame and casting a shadow down and to the right: a tab as wide as its title with the close box at the left and the zoom box at the right, the Qt app's tab yellow as the active window, the others grey](docs/screenshots/frames-haiku.png)
+![Haiku's look: Appearance with Haiku in use, Network Connections and V4L2 Test Bench, each in Haiku's frame and casting a long soft shadow down and to the right: a tab as wide as its title with the close box at the left and the zoom box at the right, the Qt app's tab yellow as the active window, the others grey](docs/screenshots/frames-haiku.png)
 
-![Gonx: the same three windows in the Gonx frame, a rounded tab with the close, zoom and minimize buttons on the blue-grey shelf beside it, each window's shadow falling down and to the right over the desktop and the windows below, the Qt app's tab yellow as the active window](docs/screenshots/frames-gonx.png)
+![Gonx: the same three windows in the Gonx frame, a rounded tab with the close, zoom and minimize buttons on the blue-grey shelf beside it, each window's long soft shadow falling down and to the right over the desktop and the windows below, the Qt app's tab yellow as the active window](docs/screenshots/frames-gonx.png)
 
 The same Gonx controls in Hokku's Showcase, a GTK 3 app and a Qt app (the GTK and Qt test
 galleries copy Showcase's layout):
