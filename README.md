@@ -51,9 +51,9 @@ Other apps' windows get the theme's frame too: labwc-hokku draws Hokku's own Hai
 tab and border round them, so a GTK or Qt window moves, zooms, closes and resizes like a Hokku
 one. Every window casts a soft shadow, of a light above and to the left, standing it off the
 desktop: about 13 pixels past the frame's right edge and 16 below, none when it fills the
-screen. The pointer is BeOS's pointing hand, with the same shadow;
-Appearance's Look and feel tab turns both shadows off. Below, Appearance (Hokku), Network Connections (GTK 3) and V4L2 Test Bench (Qt 6),
-from Hokku 7516f3a and labwc-hokku on the 1.0 ISO:
+screen. The pointer is BeOS's pointing hand, with the same shadow; Appearance's Look and feel
+tab turns both shadows off. Below, Appearance (Hokku), Network Connections (GTK 3) and V4L2
+Test Bench (Qt 6), from Hokku 7516f3a and labwc-hokku on the 1.0 ISO:
 
 ![Haiku's look: Appearance with Haiku in use, Network Connections and V4L2 Test Bench, each in Haiku's frame and casting a soft shadow down and to the right: a tab as wide as its title with the close box at the left and the zoom box at the right, the Qt app's tab yellow as the active window, the others grey](docs/screenshots/frames-haiku.png)
 
