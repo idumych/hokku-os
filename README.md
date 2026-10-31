@@ -47,6 +47,15 @@ Hokku (2439048) on the 1.0 ISO.
 
 ![Gonx: the same three windows in the Gonx look, Appearance in the Gonx tab and flap, Network Connections and Kvantum Manager in Gonx's controls and blue-grey selection, on the Gonx desktop, with the Hokku tab on the Deskbar](docs/screenshots/theme-gonx.png)
 
+Other apps' windows get the theme's frame too: labwc-hokku draws Hokku's own Haiku or Gonx
+tab and border round them, so a GTK or Qt window moves, zooms, closes and resizes like a Hokku
+one. Below, Appearance (Hokku), Network Connections (GTK 3) and V4L2 Test Bench (Qt 6, the
+active window), from Hokku ae243aa and labwc-hokku on the 1.0 ISO:
+
+![Haiku's look: Appearance with Haiku in use, Network Connections and V4L2 Test Bench, each in Haiku's frame: a tab as wide as its title with the close box at the left and the zoom box at the right, the Qt app's tab yellow as the active window, the others grey](docs/screenshots/frames-haiku.png)
+
+![Gonx: the same three windows in the Gonx frame, a rounded tab with the close, zoom and minimize buttons on the blue-grey shelf beside it, the Qt app's tab yellow as the active window](docs/screenshots/frames-gonx.png)
+
 The same Gonx controls in Hokku's Showcase, a GTK 3 app and a Qt app (the GTK and Qt test
 galleries copy Showcase's layout):
 
