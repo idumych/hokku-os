@@ -32,11 +32,11 @@ pkgbase = labwc-hokku
 	provides = labwc=0.20.2
 	conflicts = labwc
 	source = git+https://github.com/labwc/labwc#tag=0.20.2
-	source = gonx-frame.c::https://raw.githubusercontent.com/idumych/hokku/3d1b7f675d976bf9c680980ccc20a744b5655b1a/src/backends/wayland/shared/gonx-frame.c
-	source = gonx-frame.h::https://raw.githubusercontent.com/idumych/hokku/3d1b7f675d976bf9c680980ccc20a744b5655b1a/headers/libs/wayland/shared/gonx-frame.h
-	source = haiku-frame.c::https://raw.githubusercontent.com/idumych/hokku/3d1b7f675d976bf9c680980ccc20a744b5655b1a/src/backends/wayland/shared/haiku-frame.c
-	source = haiku-frame.h::https://raw.githubusercontent.com/idumych/hokku/3d1b7f675d976bf9c680980ccc20a744b5655b1a/headers/libs/wayland/shared/haiku-frame.h
-	source = hokku-License.md::https://raw.githubusercontent.com/idumych/hokku/3d1b7f675d976bf9c680980ccc20a744b5655b1a/License.md
+	source = gonx-frame.c::https://raw.githubusercontent.com/idumych/hokku/e3d370974c9f818bfd16b80902b9b7fea51c42da/src/backends/wayland/shared/gonx-frame.c
+	source = gonx-frame.h::https://raw.githubusercontent.com/idumych/hokku/e3d370974c9f818bfd16b80902b9b7fea51c42da/headers/libs/wayland/shared/gonx-frame.h
+	source = haiku-frame.c::https://raw.githubusercontent.com/idumych/hokku/e3d370974c9f818bfd16b80902b9b7fea51c42da/src/backends/wayland/shared/haiku-frame.c
+	source = haiku-frame.h::https://raw.githubusercontent.com/idumych/hokku/e3d370974c9f818bfd16b80902b9b7fea51c42da/headers/libs/wayland/shared/haiku-frame.h
+	source = hokku-License.md::https://raw.githubusercontent.com/idumych/hokku/e3d370974c9f818bfd16b80902b9b7fea51c42da/License.md
 	source = labwc-hokku-frames.patch
 	b2sums = 8f8023a5bc31e7fe52d80f1c99b02c59bd9ff9a3779145b9077dac3c2c4a78e291b99dc770039f90ac1ff548ff53adfeddad35de07f5d14d736b4c562ce3554f
 	b2sums = 0f9f820c169c235d280e5fe9230f4b03b6ecf5fe363407c7fe70fd88f60b2f0cf6f73b08ccee433f34ef85d762adfbd2c41c68267d7e5f68e2628d2b49f6e586

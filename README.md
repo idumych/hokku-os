@@ -130,6 +130,5 @@ packaging and build scripts. Real hardware has been tried far less than the VM.
 - Calamares still shows CachyOS's branding and slideshow; the boot splash images are CachyOS's.
 - The installer's "log in automatically" option is ignored (greetd is set up without it).
 - x86_64 only (CachyOS has no arm64 edition).
-- Qt apps don't take the theme's font (Kvantum can't set fonts), so their text is larger than
-  Gonx's; GTK 4 and libadwaita apps keep their own look; a Qt app shows a newly chosen style
-  only after logging in again.
+- GTK 4 and libadwaita apps keep their own look; a Qt app shows a newly chosen style only
+  after logging in again (it takes a new font when it restarts).
