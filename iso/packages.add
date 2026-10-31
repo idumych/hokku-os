@@ -9,8 +9,9 @@ folio
 sheath
 ringbinder
 
-# What cosmoe-desktop.sh starts besides Tracker and Deskbar
-labwc
+# What cosmoe-desktop.sh starts besides Tracker and Deskbar. labwc-hokku (provides
+# labwc, from the [hokku] repo) draws Hokku's frames round other apps' windows.
+labwc-hokku
 polkit-gnome
 xdg-desktop-portal
 xdg-desktop-portal-wlr

@@ -1,6 +1,11 @@
 # Hokku OS: labwc's frames for non-Be apps (Firefox, GTK, Qt) in Gonx's colours.
 # Be apps draw the Gonx frame themselves (client-side decorations).
 
+# labwc-hokku draws the same Gonx frame round the other apps, titled in the Gonx
+# look's bold font (gonx-fonts). Appearance's Themes tab writes its own over these.
+window.decorator: Gonx
+window.decorator.font: Noto Sans Bold 11px
+
 border.width: 2
 padding.width: 6
 padding.height: 3

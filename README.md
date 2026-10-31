@@ -10,7 +10,7 @@ installer). The Plasma desktop is replaced with:
 |---|---|
 | Session | `hokku-session` (passes the system keyboard layout, as set by the installer or `localectl`, to labwc and Hokku), then `cosmoe-desktop.sh` from Hokku: labwc + Tracker + Deskbar (with a tray for other desktops' applets through TrayBridge: network, volume and Bluetooth start with the session; on a laptop, Hokku's own brightness slider) + Terminal, Xwayland for X11 apps, polkit-gnome, portals. Hokku's notification_server shows the desktop's notifications, and the Deskbar's menu lists every app, Hokku and Linux alike |
 | Apps | Hokku's (Terminal, StyledEdit, ShowImage, Icon-O-Matic, DeskCalc…, and the demos) and three more built on it: [Folio](https://github.com/idumych/folio) (notebooks in Markdown), [Sheath](https://github.com/idumych/sheath) (a Bible reader on SWORD) and [Ringbinder](https://github.com/idumych/ringbinder) (a tabbed personal organizer), in the Deskbar's Applications menu |
-| Look | [Gonx](https://github.com/idumych/gonx) throughout, or Haiku's own look: Appearance's Themes tab (or `hokku-theme apply Haiku`) switches the window frames, controls, colours, fonts and desktop, labwc's frames round other apps, and GTK 3 and Qt apps (Hokku's GTK and Kvantum themes of both looks) at once. New users start in Gonx, set up from `/etc/skel` |
+| Look | [Gonx](https://github.com/idumych/gonx) throughout, or Haiku's own look: Appearance's Themes tab (or `hokku-theme apply Haiku`) switches the window frames, controls, colours, fonts and desktop, the frames round other apps (labwc-hokku draws Hokku's own Haiku or Gonx tab round them), and GTK 3 and Qt apps (Hokku's GTK and Kvantum themes of both looks) at once. New users start in Gonx, set up from `/etc/skel` |
 | Displays | wdisplays (resolution, scale, arrangement, rotation; in the Deskbar's applications menu) and kanshi, started from `/etc/xdg/labwc/autostart`, which applies the layouts in `~/.config/kanshi/config` at login |
 | Login | greetd + tuigreet (the live ISO logs `liveuser` in automatically) |
 | Installer | Calamares in offline mode: copies the live system to disk, then sets up greetd for Hokku |
@@ -79,6 +79,9 @@ packages/folio/, sheath/,     PKGBUILDs for those apps from their release tags, 
   ringbinder/                the system Hokku (their release AppImages bundle their own)
 packages/hokku-os-settings/  hokku-session, the Gonx settings for /etc/skel, labwc rc.xml
                              and its Gonx-coloured theme
+packages/labwc-hokku/        Arch's labwc with a patch that draws Hokku's Haiku and Gonx frames
+                             (Hokku's frame code, from packages/hokku's commit) round other
+                             apps, when the theme sets window.decorator
 iso/                         overlay on CachyOS's archiso profile (CachyOS-Live-ISO, pinned commit)
   packages.add / .remove       changes to CachyOS's packages_desktop.x86_64
   airootfs.remove              Plasma files dropped from CachyOS's airootfs

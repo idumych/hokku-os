@@ -1,0 +1,76 @@
+# Maintainer: idumych <idumych@gmail.com>
+# Arch's labwc (Maintainer: Peter Jung, Contributor: Lex Black) with Hokku's window frames:
+# with `window.decorator: Haiku` (or Gonx) in the theme, other apps' windows get Haiku's
+# yellow tab or Gonx's, drawn by Hokku's own frame code. See labwc-hokku-frames.patch.
+# On a labwc release: bump pkgver, rebase the patch and update its b2sum.
+pkgname=labwc-hokku
+pkgver=0.20.2
+pkgrel=1
+pkgdesc='stacking wayland compositor with look and feel from openbox, with Hokku window frames'
+url="https://github.com/labwc/labwc"
+arch=('x86_64')
+license=('GPL-2.0-only' 'MIT')
+depends=(
+  cairo
+  glib2
+  glibc
+  libinput
+  libpng
+  librsvg
+  libsfdo
+  libwlroots-0.20.so
+  libxcb
+  libxkbcommon
+  libxml2
+  pango
+  pixman
+  seatd
+  ttf-font
+  wayland
+)
+makedepends=(
+  git
+  meson
+  scdoc
+  wayland-protocols
+  xorg-xwayland
+)
+optdepends=(
+  "bemenu: default launcher via Alt+F3"
+  "xorg-xwayland: X11 application support"
+)
+provides=("labwc=$pkgver")
+conflicts=(labwc)
+# Hokku's frame code, from the commit packages/hokku builds
+_hokku=ae243aaf9a00919065f0290eefc916d1209920ea
+_frames="https://raw.githubusercontent.com/idumych/hokku/$_hokku"
+source=("git+https://github.com/labwc/labwc#tag=${pkgver}"
+        "gonx-frame.c::$_frames/src/backends/wayland/shared/gonx-frame.c"
+        "gonx-frame.h::$_frames/headers/libs/wayland/shared/gonx-frame.h"
+        "haiku-frame.c::$_frames/src/backends/wayland/shared/haiku-frame.c"
+        "haiku-frame.h::$_frames/headers/libs/wayland/shared/haiku-frame.h"
+        "hokku-License.md::$_frames/License.md"
+        labwc-hokku-frames.patch)
+b2sums=('8f8023a5bc31e7fe52d80f1c99b02c59bd9ff9a3779145b9077dac3c2c4a78e291b99dc770039f90ac1ff548ff53adfeddad35de07f5d14d736b4c562ce3554f'
+        '2096bc41a25e86d91302cde90e4c3e2af2f845b32fe802de9759a596a0ed53d1b50538a00d1b054985d6e52de41644a4ce41f1a93611550fa45ba3543ef316af'
+        '3487aae12b5d3eb034e3d28b1c5ae0f70bd7dd21b2a4a42d9489248411c41163595cac4994606b91a5d6189725068efb3aa7f03a1c03beb22218b8afbfe3b5e0'
+        'c19c56b1aa81886c49aa43fb6eee151737253f80477736f483c38d32d13b14c62d1e62d6140f7ee02b20664d8f481b2caeb212f5fb63a9463684b1e770f70f41'
+        '80f0f835367df4f4bfef1f9aecb6dd0e2c95615469cacbb52e8147ce6f02e108409aa4a5b8e94f99988c369168dfe7115eba10c5c80e812f5350f7f5da91360f'
+        '4a7aa6e21fa601e01b560a49923f9b44025c9acb070a59272ebb65e688d20d5fca971497ba406653993e631048a5a27c74cb987bda3cc725e8fc3134d0503885'
+        'b1b503a00b45185399da8e1b7e0c714e3b4b88d2300d730c0a6f04afec2d25b5a8330d80c17a86d18da7671a267bbcfcdd1a46cddd9d0ab638dab8518ec0aa0a')
+
+prepare() {
+  patch -d labwc -Np1 < labwc-hokku-frames.patch
+  cp gonx-frame.c gonx-frame.h haiku-frame.c haiku-frame.h labwc/src/ssd/hokku/
+}
+
+build() {
+  arch-meson -Dman-pages=enabled labwc build
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+  # Hokku's frame code is MIT
+  install -Dm644 hokku-License.md "$pkgdir/usr/share/licenses/$pkgname/hokku-License.md"
+}
