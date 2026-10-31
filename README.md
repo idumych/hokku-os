@@ -75,6 +75,7 @@ packages/hokku/              PKGBUILD: hokku, hokku-apps, hokku-desktop (split) 
                              commit of the hokku branch
 aur/hokku-git/               the same split for the AUR, from the hokku branch's latest commit
                              (hokku-git, hokku-apps-git, hokku-desktop-git; no Hokku OS apps)
+aur/labwc-hokku/             packages/labwc-hokku for the AUR (hokku-desktop-git suggests it)
 packages/folio/, sheath/,     PKGBUILDs for those apps from their release tags, built against
   ringbinder/                the system Hokku (their release AppImages bundle their own)
 packages/hokku-os-settings/  hokku-session, the Gonx settings for /etc/skel, labwc rc.xml

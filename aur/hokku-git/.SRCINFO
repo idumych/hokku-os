@@ -110,6 +110,9 @@ pkgname = hokku-desktop-git
 	depends = hicolor-icon-theme
 	optdepends = pipewire: sound
 	optdepends = wireplumber: sound
+	optdepends = xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)
+	optdepends = kvantum: Qt apps in the Haiku and Gonx looks
+	optdepends = labwc-hokku: other apps' windows in Hokku's Haiku and Gonx frames
 	optdepends = mako: notifications in sessions with HOKKU_NOTIFICATIONS=0
 	provides = hokku-desktop=0.9.0.20261013.r127.gd557d4e
 	provides = cosmoe-desktop
