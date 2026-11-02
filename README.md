@@ -15,7 +15,7 @@ installer); Plasma is replaced with Hokku. Not affiliated with or endorsed by Ca
 |---|---|
 | Desktop | Tracker and the Deskbar on labwc. The Deskbar's menu lists every app, Hokku and Linux alike; its tray holds other desktops' applets through TrayBridge (network, volume, Bluetooth) and, on a laptop, Hokku's brightness slider. Hokku's notification server shows every app's notifications. Xwayland runs X11 apps |
 | Apps | Hokku's (Terminal, StyledEdit, ShowImage, Icon-O-Matic, DeskCalc…, and the demos) and three more built on it: [Folio](https://github.com/idumych/folio) (Markdown notebooks), [Sheath](https://github.com/idumych/sheath) (a Bible reader on SWORD) and [Ringbinder](https://github.com/idumych/ringbinder) (a personal organizer) |
-| Look | [Gonx](https://github.com/idumych/gonx) or Haiku's own, switched in Appearance's Themes tab (or `hokku-theme apply`): window frames, controls, colours, fonts and desktop for Hokku apps, the same frames round every other window (labwc-hokku), and GTK 3 and Qt apps in matching themes and fonts. Windows and the BeOS pointer cast a soft shadow, which Appearance's Look and feel tab turns off. New users start in Gonx |
+| Look | [Gonx](https://github.com/idumych/gonx) or Haiku's own, switched in Appearance's Themes tab (or `hokku-theme apply`): window frames, controls, colours, fonts and desktop for Hokku apps, the same frames round every other window (labwc-hokku), and GTK 3 and Qt apps in matching themes and fonts. Windows and the BeOS pointer cast a soft shadow, and menus show BeOS Dano's ZSnake (a submenu's selection joined to the item it opened from); Appearance's Look and feel tab turns either off. New users start in Gonx |
 | Displays | wdisplays (resolution, scale, arrangement, rotation) and kanshi, which applies `~/.config/kanshi/config` at login |
 | Login | greetd and tuigreet; `hokku-session` hands the system keyboard layout (from the installer or `localectl`) to labwc and Hokku. The live ISO logs `liveuser` in |
 | Installer | Calamares in offline mode: copies the live system to disk, then sets up greetd for Hokku |
@@ -34,6 +34,14 @@ Hokku 7516f3a.
 ![Haiku's look: Appearance with Haiku in use, Network Connections and V4L2 Test Bench, each in Haiku's frame, a tab as wide as its title with the close box at the left and the zoom box at the right, casting a soft shadow down and to the right, on Haiku's blue desktop](docs/screenshots/frames-haiku.png)
 
 ![Gonx: the same three windows in the Gonx frame, a rounded tab with the close, zoom and minimize buttons on a blue-grey shelf beside it, each casting a soft shadow, on the Gonx desktop](docs/screenshots/frames-gonx.png)
+
+ZSnake, the hidden menu effect of BeOS Dano (5.1), on by default, in Hokku's clean-room
+version matched to Dano's screenshots: from the Deskbar's button, in the selection colour while
+its menu is open, a band down the menu's edge to Preferences, whose highlight runs left to its
+submenu, and another band down that submenu's edge to the selected item, every corner rounded
+on a diagonal: a staircase down and to the left (twice the size).
+
+![The Deskbar's menu in the Gonx look with Preferences open: the Hokku button in the selection colour, a band down the menu's edge from it to the Preferences highlight, which runs left to the submenu opened beside it, and another band down that submenu's edge to Tracker, its last item](docs/screenshots/zsnake-deskbar.png)
 
 The Gonx controls in Hokku's Showcase and in the GTK and Qt test galleries, which copy its
 layout:
