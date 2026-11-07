@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r180.6a3b787
+pkgver=0.9.0.r637.5f1a821
 pkgrel=1
-# The hokku branch (with the Gonx look, the Deskbar tray and notifications)
-_commit=6a3b7870192cfa9e60c8ded51c3720e89e4df398
+# The universal-decor branch: decorator add-ons, labwc-hokku and the session
+_commit=5f1a821d643e555b555b8a19c8031e2d2a9a3f7f
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'
@@ -18,18 +18,33 @@ license=(MIT)
 _libdeps=(cairo fontconfig glib2 glibc icu libgcc libglvnd libicns libjpeg-turbo libpng
           libraw librsvg libstdc++ libtiff libwebp libx11 libxcursor libxkbcommon libxkbcommon-x11
           libxrandr openssl pango pixman wayland zlib)
-makedepends=(git meson ninja flex bison wayland-protocols "${_libdeps[@]}")
-source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit")
-sha256sums=('SKIP')
+# labwc-hokku's (built with Hokku: labwc with other apps' windows in its frames)
+_labwcdeps=(libdrm libinput libxml2 libsfdo seatd wlroots0.20 xcb-util-wm)
+makedepends=(git meson ninja flex bison xorg-xwayland "${_labwcdeps[@]}" wayland-protocols "${_libdeps[@]}")
+source=("hokku::git+https://github.com/idumych/hokku.git#commit=$_commit"
+        "labwc::git+https://github.com/labwc/labwc.git#tag=0.20.2")
+sha256sums=('SKIP'
+            'SKIP')
+
+prepare() {
+    # labwc-hokku: labwc with Hokku's patch, where meson would fetch it
+    rm -rf hokku/subprojects/labwc
+    if [ -f hokku/subprojects/packagefiles/labwc-hokku.patch ]; then
+        cp -a labwc hokku/subprojects/labwc
+        patch -d hokku/subprojects/labwc -Np1 \
+            < hokku/subprojects/packagefiles/labwc-hokku.patch
+    fi
+}
 
 build() {
-    arch-meson hokku build -Denable_unit_test_compile=false
+    arch-meson hokku build -Denable_unit_test_compile=false --wrap-mode=nodownload
     meson compile -C build
     # Installed here, not in package_hokku(): the install scripts run mimeset,
     # which reads back the xattrs it writes, and fakeroot hides xattrs.
     # (Hokku's Debian packaging likewise sets Rules-Requires-Root: no.)
     rm -rf staging
-    meson install -C build --destdir "$srcdir/staging"
+    meson install -C build --destdir "$srcdir/staging" \
+        --skip-subprojects libsfdo,wlroots
     # Hokku keeps the MIME database (icons included) and app signatures in
     # xattrs, which no package keeps (fakeroot hides them from bsdtar).
     # Dump them here; hokku-xattrs.install restores them on the target.
@@ -86,7 +101,8 @@ package_hokku() {
     local desktop_apps=(Deskbar DeskbarPreferences Tracker TrackerPreferences TrayBridge
                         notification_server)
     _pick desktop usr/bin/cosmoe-desktop.sh usr/share/wayland-sessions usr/share/cosmoe/deskbar \
-        usr/share/xdg-desktop-portal \
+        usr/share/xdg-desktop-portal usr/bin/labwc-hokku usr/share/cosmoe-desktop \
+        usr/lib/systemd/user/hokku-session.target etc/xdg/autostart/kmix-hokku.desktop \
         usr/share/applications/x-vnd.Be-TSKB.desktop \
         usr/share/applications/x-vnd.Cosmoe-Tracker.desktop \
         usr/share/applications/x-vnd.Haiku-Deskbar-Preferences.desktop \
@@ -122,9 +138,10 @@ package_hokku-apps() {
 }
 
 package_hokku-desktop() {
-    pkgdesc='Hokku desktop session: Tracker and Deskbar on labwc (Wayland)'
+    pkgdesc='Hokku desktop session: Tracker and Deskbar on labwc (Wayland), other apps in Hokku frames'
     depends=("hokku=$pkgver" "hokku-apps=$pkgver" glibc libgcc libstdc++ bash dbus labwc
-             polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
+             polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme
+             "${_labwcdeps[@]}")
     optdepends=('pipewire: sound' 'wireplumber: sound'
                 "xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)"
                 'kvantum: Qt apps in the Haiku and Gonx looks'

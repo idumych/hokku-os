@@ -17,10 +17,14 @@ license=(MIT)
 _libdeps=(cairo fontconfig glib2 glibc icu libgcc libglvnd libicns libjpeg-turbo libpng
           libraw librsvg libstdc++ libtiff libwebp libx11 libxcursor libxkbcommon libxkbcommon-x11
           libxrandr openssl pango pixman wayland zlib)
-makedepends=(git meson ninja flex bison attr wayland-protocols "${_libdeps[@]}")
+# labwc-hokku's (built with Hokku: labwc with other apps' windows in its frames)
+_labwcdeps=(libdrm libinput libxml2 libsfdo seatd wlroots0.20 xcb-util-wm)
+makedepends=(git meson ninja flex bison xorg-xwayland "${_labwcdeps[@]}" attr wayland-protocols "${_libdeps[@]}")
 source=("hokku::git+https://github.com/idumych/hokku.git#branch=hokku"
+        "labwc::git+https://github.com/labwc/labwc.git#tag=0.20.2"
         hokku-xattrs.install)
 sha256sums=('SKIP'
+            'SKIP'
             '028577557d76b750e826537195db565b77c8dc9cc044407e2f72b1b4a0c2123b')
 
 pkgver() {
@@ -29,13 +33,24 @@ pkgver() {
     git describe --long --tags --abbrev=7 | sed 's/^v//;s/_/./;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
+prepare() {
+    # labwc-hokku: labwc with Hokku's patch, where meson would fetch it
+    rm -rf hokku/subprojects/labwc
+    if [ -f hokku/subprojects/packagefiles/labwc-hokku.patch ]; then
+        cp -a labwc hokku/subprojects/labwc
+        patch -d hokku/subprojects/labwc -Np1 \
+            < hokku/subprojects/packagefiles/labwc-hokku.patch
+    fi
+}
+
 build() {
-    arch-meson hokku build -Denable_unit_test_compile=false
+    arch-meson hokku build -Denable_unit_test_compile=false --wrap-mode=nodownload
     meson compile -C build
     # Installed here, not in package_hokku-git(): the install scripts run
     # mimeset, which reads back the xattrs it writes, and fakeroot hides xattrs.
     rm -rf staging
-    meson install -C build --destdir "$srcdir/staging"
+    meson install -C build --destdir "$srcdir/staging" \
+        --skip-subprojects libsfdo,wlroots
     # Hokku keeps the MIME database (icons included) and app signatures in
     # xattrs, which no package keeps (fakeroot hides them from bsdtar).
     # Dump them here; hokku-xattrs.install restores them on the target.
@@ -92,7 +107,8 @@ package_hokku-git() {
     local desktop_apps=(Deskbar DeskbarPreferences Tracker TrackerPreferences TrayBridge
                         notification_server)
     _pick desktop usr/bin/cosmoe-desktop.sh usr/share/wayland-sessions usr/share/cosmoe/deskbar \
-        usr/share/xdg-desktop-portal \
+        usr/share/xdg-desktop-portal usr/bin/labwc-hokku usr/share/cosmoe-desktop \
+        usr/lib/systemd/user/hokku-session.target etc/xdg/autostart/kmix-hokku.desktop \
         usr/share/applications/x-vnd.Be-TSKB.desktop \
         usr/share/applications/x-vnd.Cosmoe-Tracker.desktop \
         usr/share/applications/x-vnd.Haiku-Deskbar-Preferences.desktop \
@@ -128,13 +144,13 @@ package_hokku-apps-git() {
 }
 
 package_hokku-desktop-git() {
-    pkgdesc='Hokku desktop session: Tracker and Deskbar on labwc (Wayland)'
+    pkgdesc='Hokku desktop session: Tracker and Deskbar on labwc (Wayland), other apps in Hokku frames'
     depends=("hokku-git=$pkgver" "hokku-apps-git=$pkgver" glibc libgcc libstdc++ bash dbus
-             labwc polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme)
+             labwc polkit-gnome xdg-desktop-portal xdg-desktop-portal-wlr hicolor-icon-theme
+             "${_labwcdeps[@]}")
     optdepends=('pipewire: sound' 'wireplumber: sound'
                 "xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)"
                 'kvantum: Qt apps in the Haiku and Gonx looks'
-                "labwc-hokku: other apps' windows in Hokku's Haiku and Gonx frames"
                 'mako: notifications in sessions with HOKKU_NOTIFICATIONS=0')
     install=hokku-xattrs.install
     provides=("hokku-desktop=$pkgver" cosmoe-desktop)
