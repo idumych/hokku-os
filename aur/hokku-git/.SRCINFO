@@ -10,6 +10,14 @@ pkgbase = hokku-git
 	makedepends = ninja
 	makedepends = flex
 	makedepends = bison
+	makedepends = xorg-xwayland
+	makedepends = libdrm
+	makedepends = libinput
+	makedepends = libxml2
+	makedepends = libsfdo
+	makedepends = seatd
+	makedepends = wlroots0.20
+	makedepends = xcb-util-wm
 	makedepends = attr
 	makedepends = wayland-protocols
 	makedepends = cairo
@@ -38,7 +46,9 @@ pkgbase = hokku-git
 	makedepends = wayland
 	makedepends = zlib
 	source = hokku::git+https://github.com/idumych/hokku.git#branch=hokku
+	source = labwc::git+https://github.com/labwc/labwc.git#tag=0.20.2
 	source = hokku-xattrs.install
+	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = 028577557d76b750e826537195db565b77c8dc9cc044407e2f72b1b4a0c2123b
 
@@ -94,7 +104,7 @@ pkgname = hokku-apps-git
 	conflicts = cosmoe-apps
 
 pkgname = hokku-desktop-git
-	pkgdesc = Hokku desktop session: Tracker and Deskbar on labwc (Wayland)
+	pkgdesc = Hokku desktop session: Tracker and Deskbar on labwc (Wayland), other apps in Hokku frames
 	install = hokku-xattrs.install
 	depends = hokku-git=0.9.0.20261013.r127.gd557d4e
 	depends = hokku-apps-git=0.9.0.20261013.r127.gd557d4e
@@ -108,11 +118,17 @@ pkgname = hokku-desktop-git
 	depends = xdg-desktop-portal
 	depends = xdg-desktop-portal-wlr
 	depends = hicolor-icon-theme
+	depends = libdrm
+	depends = libinput
+	depends = libxml2
+	depends = libsfdo
+	depends = seatd
+	depends = wlroots0.20
+	depends = xcb-util-wm
 	optdepends = pipewire: sound
 	optdepends = wireplumber: sound
 	optdepends = xdg-desktop-portal-gtk: file chooser for portal apps (or KDE's portal)
 	optdepends = kvantum: Qt apps in the Haiku and Gonx looks
-	optdepends = labwc-hokku: other apps' windows in Hokku's Haiku and Gonx frames
 	optdepends = mako: notifications in sessions with HOKKU_NOTIFICATIONS=0
 	provides = hokku-desktop=0.9.0.20261013.r127.gd557d4e
 	provides = cosmoe-desktop

@@ -93,17 +93,17 @@ scripts/test-iso.sh start && scripts/test-iso.sh shot desktop
 ```
 packages/
   hokku/               hokku, hokku-apps, hokku-desktop (split), from a pinned commit of
-                       Hokku's hokku branch
-  labwc-hokku/         Arch's labwc with a patch that draws Hokku's Haiku and Gonx frames,
-                       and their shadow, round other apps' windows (window.decorator in the
-                       theme); Hokku's frame code comes from packages/hokku's commit
-  hokku-os-settings/   hokku-session, labwc's rc.xml and theme, and the Gonx look for
-                       /etc/skel
+                       Hokku. hokku-desktop has Hokku's desktop session: labwc-hokku (labwc
+                       with Hokku's patch, drawing other apps' windows in the frame Hokku's
+                       own have, with libdecorator), labwc's settings and theme, the
+                       autostart applets' hokku-session.target and KMix's tray entry
+  hokku-os-settings/   hokku-session and the Gonx look for /etc/skel
   folio/, sheath/,     those apps from their release tags, built against the system Hokku
   ringbinder/          (their release AppImages bundle their own)
 aur/
   hokku-git/           the hokku split for the AUR, from the hokku branch's latest commit
-  labwc-hokku/         packages/labwc-hokku for the AUR (hokku-desktop-git suggests it)
+  labwc-hokku/         the old standalone labwc-hokku for the AUR; hokku-desktop-git has
+                       labwc-hokku itself from Hokku 85e62b4 on
 iso/                   overlay on CachyOS's archiso profile (CachyOS-Live-ISO, pinned commit)
   packages.add/.remove   changes to CachyOS's package list
   airootfs.remove        Plasma files dropped from CachyOS's airootfs
