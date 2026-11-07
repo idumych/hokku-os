@@ -5,10 +5,10 @@
 #   hokku-desktop  Tracker, Deskbar and the labwc Wayland session
 pkgbase=hokku
 pkgname=(hokku hokku-apps hokku-desktop)
-pkgver=0.9.0.r637.5f1a821
+pkgver=0.9.0.r642.85e62b4
 pkgrel=1
-# The universal-decor branch: decorator add-ons, labwc-hokku and the session
-_commit=5f1a821d643e555b555b8a19c8031e2d2a9a3f7f
+# The hokku branch, with decorator add-ons, labwc-hokku and the session
+_commit=85e62b4884c6a5129655e53a3db7699a3bc9abda
 pkgdesc='BeOS/Haiku-compatible C++ application framework for Linux (Hokku fork of Cosmoe)'
 arch=(x86_64)
 url='https://github.com/idumych/hokku'

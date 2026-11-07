@@ -1,7 +1,7 @@
 # Maintainer: idumych <idumych@gmail.com>
 # Desktop defaults for Hokku OS: the Gonx look for new users and the session wrapper.
 # labwc's settings and theme, hokku-session.target and KMix's tray entry come with
-# Hokku's desktop session (hokku-desktop) since Hokku 5f1a821.
+# Hokku's desktop session (hokku-desktop) since Hokku 85e62b4.
 pkgname=hokku-os-settings
 pkgver=2026.11.07
 pkgrel=1

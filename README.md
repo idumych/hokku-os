@@ -103,7 +103,7 @@ packages/
 aur/
   hokku-git/           the hokku split for the AUR, from the hokku branch's latest commit
   labwc-hokku/         the old standalone labwc-hokku for the AUR; hokku-desktop-git has
-                       labwc-hokku itself from Hokku 5f1a821 on
+                       labwc-hokku itself from Hokku 85e62b4 on
 iso/                   overlay on CachyOS's archiso profile (CachyOS-Live-ISO, pinned commit)
   packages.add/.remove   changes to CachyOS's package list
   airootfs.remove        Plasma files dropped from CachyOS's airootfs
