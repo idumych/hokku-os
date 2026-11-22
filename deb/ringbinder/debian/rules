@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+PKG := ringbinder
+APP := Ringbinder
+SIG := application/x-vnd.Ringbinder
+COMMENT := A tabbed personal organizer: diary, tasks, contacts, calls, year planner, notes and anniversaries
+CATEGORIES := Office;Calendar;ContactManagement;
+
+install-extra:
+	install -Dm644 packaging/appimage/ringbinder.png debian/$(PKG)/usr/share/icons/hicolor/256x256/apps/$(PKG).png
+	install -Dm644 packaging/appimage/ringbinder.svg debian/$(PKG)/usr/share/icons/hicolor/scalable/apps/$(PKG).svg
+
+include debian/hokku-app.mk

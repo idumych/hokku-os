@@ -1,0 +1,14 @@
+Source: sheath
+Section: text
+Priority: optional
+Maintainer: idumych <idumych@gmail.com>
+Build-Depends: debhelper-compat (= 13), cosmoe-dev, attr, libsword-dev, libsqlite3-dev
+Standards-Version: 4.7.0
+Homepage: https://github.com/idumych/sheath
+Rules-Requires-Root: no
+
+Package: sheath
+Architecture: amd64
+Depends: cosmoe, attr, hicolor-icon-theme, fonts-noto-core, ${shlibs:Depends}, ${misc:Depends}
+Description: Bible reader built on the SWORD library
+ Sheath is a Bible reader built on the SWORD library. A Hokku app.

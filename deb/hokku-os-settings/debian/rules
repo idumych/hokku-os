@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+# The files are packages/hokku-os-settings's (scripts/build-debs.sh builds from
+# there); see its PKGBUILD for what each one is.
+ROOT := debian/hokku-os-settings
+SKEL := $(ROOT)/etc/skel/.config
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -Dm755 hokku-session $(ROOT)/usr/bin/hokku-session
+	install -Dm644 gonx-appearance $(SKEL)/cosmoe/system/app_server/appearance
+	install -Dm644 gonx-fonts $(SKEL)/cosmoe/system/app_server/fonts
+	install -Dm644 gonx-previous $(SKEL)/cosmoe/Gonx/previous
+	install -Dm644 appearance-theme "$(SKEL)/cosmoe/Appearance theme"
+	install -Dm644 gonx-gtk-settings.ini $(SKEL)/gtk-3.0/settings.ini
+	install -Dm644 gonx-gtk-settings.ini $(SKEL)/gtk-4.0/settings.ini
+	install -Dm644 hokku-os.gschema.override \
+		$(ROOT)/usr/share/glib-2.0/schemas/zz_hokku-os.gschema.override
+	install -Dm644 gonx-qtct.conf $(SKEL)/qt5ct/qt5ct.conf
+	install -Dm644 gonx-qtct.conf $(SKEL)/qt6ct/qt6ct.conf
+	install -Dm644 gonx-kvantum.kvconfig $(SKEL)/Kvantum/kvantum.kvconfig
+	install -Dm644 labwc-environment $(SKEL)/labwc/environment
+	install -Dm644 no-background.msg $(ROOT)/usr/share/hokku-os/no-background.msg
+	# the session entry, in place of Hokku's (diverted by preinst)
+	mkdir -p $(ROOT)/usr/share/wayland-sessions
+	printf '%s\n' '[Desktop Entry]' 'Name=Hokku' \
+		'Comment=The Be/Haiku desktop: Tracker and Deskbar on labwc' \
+		'Exec=/usr/bin/hokku-session' 'Type=Application' 'DesktopNames=cosmoe' \
+		>$(ROOT)/usr/share/wayland-sessions/cosmoe.desktop

@@ -6,14 +6,14 @@
 #   start-disk       boot what the installer put on that disk
 #   shot NAME        screenshot to $DIR/NAME.png
 #   key KEYS         QEMU key names (ret, alt-tab, ctrl-alt-t, …)
-#   type TEXT        letters, digits, space and . / - _
+#   type TEXT        letters, digits, space and . / - _ : * & | > = ;
 #   click X Y        absolute left click (usb-tablet) on a 1280x800 screen
 #   stop             hard power-off
 #
 #   DIR (default build/vm)   BIOS=1 boots SeaBIOS instead of UEFI
 #   QCPU (default Nehalem): a CPU without AVX/AVX2, so anything built for x86-64-v3
 #   (the host's -march=native, CachyOS's v3 repos) crashes here instead of on a user's machine.
-# SSH: 127.0.0.1:2226 -> guest 22 (the live ISO runs sshd; set a password first: passwd liveuser).
+# SSH: 127.0.0.1:2226 (or $SSH_PORT) -> guest 22 (the live ISO runs sshd; set a password first: passwd liveuser).
 # Needs qemu-system-x86_64, edk2-ovmf, socat, ImageMagick.
 
 set -euo pipefail
@@ -40,7 +40,7 @@ boot() {
     rm -f "$DIR/monitor.sock" "$DIR/qmp.sock"
     setsid qemu-system-x86_64 -enable-kvm -cpu "$QCPU" -smp 4 -m 4096 "${fw[@]}" \
         -drive "file=$DIR/disk.qcow2,if=virtio,format=qcow2" "${boot_args[@]}" \
-        -netdev user,id=n0,hostfwd=tcp:127.0.0.1:2226-:22 -device virtio-net,netdev=n0 \
+        -netdev user,id=n0,hostfwd=tcp:127.0.0.1:${SSH_PORT:-2226}-:22 -device virtio-net,netdev=n0 \
         -device virtio-vga -display none -device qemu-xhci -device usb-tablet -device usb-kbd \
         -audiodev none,id=snd0 -device intel-hda -device hda-output,audiodev=snd0 \
         -monitor "unix:$DIR/monitor.sock,server,nowait" -qmp "unix:$DIR/qmp.sock,server,nowait" \
@@ -69,6 +69,8 @@ type)
         c=${s:i:1}
         case $c in
             ' ') k=spc ;; .) k=dot ;; /) k=slash ;; -) k=minus ;; _) k=shift-minus ;;
+            :) k=shift-semicolon ;; '*') k=shift-8 ;; '&') k=shift-7 ;; '|') k=shift-backslash ;;
+            '>') k=shift-dot ;; '=') k=equal ;; ';') k=semicolon ;;
             [A-Z]) k=shift-${c,,} ;; *) k=$c ;;
         esac
         hmp "sendkey $k"; sleep 0.05

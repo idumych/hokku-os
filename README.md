@@ -88,6 +88,20 @@ scripts/test-iso.sh start && scripts/test-iso.sh shot desktop
 
 `build-packages.sh` and `build-iso.sh` ask for sudo (makechrootpkg, mkarchiso).
 
+### On Ubuntu 26.04 and its derivatives (Linux Lite 8…)
+
+The same packages, as .debs, put the whole Hokku OS desktop beside the system's own: Hokku and
+its session (labwc-hokku included), Power Theme, Folio, Sheath, Ringbinder and the Gonx look.
+They're built in a clean Ubuntu 26.04 VM from the commits the PKGBUILDs pin (no sudo needed):
+
+```sh
+scripts/build-debs.sh      # -> out/hokku-debs-<date>.tar.gz
+```
+
+On the Ubuntu machine, unpack it and run `sudo ./install.sh` (apt brings the dependencies),
+then pick "Hokku" in the login screen's session menu. Tested in the Linux Lite 8.0 live
+session: Hokku's desktop from LightDM, and Linux apps in Power Theme's frames.
+
 ## Layout
 
 ```
@@ -108,8 +122,13 @@ iso/                   overlay on CachyOS's archiso profile (CachyOS-Live-ISO, p
   packages.add/.remove   changes to CachyOS's package list
   airootfs.remove        Plasma files dropped from CachyOS's airootfs
   airootfs/              greetd, os-release, the installer launcher
+deb/                   Debian packaging for Ubuntu 26.04: deb/<pkg>/debian for each package,
+                       deb/hokku/debian.patch on Hokku's own debian/, and the bundle's
+                       install.sh and README
 scripts/
   build-packages.sh    clean-chroot builds into repo/x86_64 (the local [hokku] repo)
+  build-debs.sh        the .debs, in deb-vm.sh's Ubuntu VM, and the bundle in out/
+  deb-vm.sh            an Ubuntu 26.04 VM from its cloud image (builds, SSH, files in and out)
   build-iso.sh         profile + overlay -> mkarchiso -> out/hokku-os-*.iso
   test-iso.sh          boots the ISO or the installed disk in QEMU; screenshots, keys, clicks
 ```

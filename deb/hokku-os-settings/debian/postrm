@@ -1,0 +1,10 @@
+#!/bin/sh
+# Give Hokku its own session entry back (see preinst).
+set -e
+
+if [ "$1" = remove ] || [ "$1" = abort-install ] || [ "$1" = disappear ]; then
+    dpkg-divert --package hokku-os-settings --rename \
+        --remove /usr/share/wayland-sessions/cosmoe.desktop
+fi
+
+#DEBHELPER#

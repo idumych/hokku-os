@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+PKG := sheath
+APP := Sheath
+SIG := application/x-vnd.Sheath
+COMMENT := Bible reader built on the SWORD library
+CATEGORIES := Education;
+
+install-extra:
+	install -Dm644 packaging/appimage/icon.png debian/$(PKG)/usr/share/icons/hicolor/256x256/apps/$(PKG).png
+
+include debian/hokku-app.mk

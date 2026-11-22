@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+# Power Theme, built against the system Hokku. Its window decorators and control
+# looks are built here too, into Hokku's add-ons folder, so that themes work at
+# once; "Build add-ons…" builds them again into the user's, which come first.
+# Rebuild this package when Hokku's decorator classes change.
+ROOT := debian/power-theme
+APP := PowerTheme
+SIG := application/x-vnd.idumych-PowerTheme
+ADDONS := $(shell finddir B_SYSTEM_ADDONS_DIRECTORY)
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	-$(MAKE) COSMOE_ROOT=/usr clean
+
+override_dh_auto_build:
+	$(MAKE) COSMOE_ROOT=/usr
+
+override_dh_auto_test:
+
+override_dh_auto_install:
+	$(MAKE) COSMOE_ROOT=/usr install DESTDIR=$(CURDIR)/$(ROOT) PREFIX=/usr
+	sh src/themes/build-decorators.sh --source=$(CURDIR) \
+		--dest=$(CURDIR)/$(ROOT)$(ADDONS) | grep -v '^STEP'
+	ls $(ROOT)$(ADDONS)/decorators/*
+	bash debian/hokku-deb stage $(APP) $(SIG) $(ROOT) build/hokku/PowerTheme
+	install -d "$(ROOT)/usr/share/cosmoe/deskbar/menu/Preferences"
+	ln -s ../../../../../bin/$(APP) "$(ROOT)/usr/share/cosmoe/deskbar/menu/Preferences/Power Theme"
+	install -Dm644 LICENSE $(ROOT)/usr/share/doc/power-theme/copyright
+	for theme in expose gonx platinum; do \
+		install -Dm644 src/third_party/$$theme/LICENSE \
+			$(ROOT)/usr/share/doc/power-theme/LICENSE.$$theme; \
+	done
+	bash debian/hokku-deb xattrs power-theme $(ROOT)
+
+# libbe has no shlibs file (Depends names Hokku itself)
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info

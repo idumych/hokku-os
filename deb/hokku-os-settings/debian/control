@@ -1,0 +1,19 @@
+Source: hokku-os-settings
+Section: x11
+Priority: optional
+Maintainer: idumych <idumych@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.7.0
+Homepage: https://github.com/idumych/hokku-os
+Rules-Requires-Root: no
+
+Package: hokku-os-settings
+Architecture: all
+Depends: cosmoe-desktop, labwc, fonts-noto-core, gawk, kanshi, xwayland, qt-style-kvantum,
+ ${misc:Depends}
+Recommends: wdisplays, grim, brightnessctl, wireplumber, network-manager-gnome
+Suggests: kmix, blueman
+Description: Hokku OS desktop defaults: the Gonx look and the session
+ The Gonx look for new users (Hokku apps, GTK and Qt), the BeOS pointer, and
+ hokku-session, which starts Hokku's desktop with Gonx's plain background.
+ Its session entry ("Hokku") takes the place of Hokku's own.

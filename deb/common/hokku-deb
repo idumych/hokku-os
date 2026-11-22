@@ -1,0 +1,69 @@
+#!/bin/bash
+# Helpers for the Debian packaging of the Hokku apps (debian/rules runs it as
+# debian/hokku-deb; scripts/build-debs.sh copies it in). The same steps as the
+# PKGBUILDs' _stage and hokku-xattrs.install:
+#
+#   hokku-deb stage APP SIG ROOT [FILE]
+#       install ./APP (or FILE) as ROOT/usr/bin/APP, typed and with its signature's entry
+#       in the system MIME database (ROOT/usr/share/cosmoe/mime_db), as Hokku's
+#       own apps are
+#   hokku-deb desktop APP SIG ICON COMMENT CATEGORIES MENU ROOT
+#       its .desktop entry, and the app in the Deskbar's menu
+#   hokku-deb xattrs PKG ROOT
+#       dump ROOT's xattrs (where Hokku keeps types, signatures and the MIME
+#       database, which .debs can't carry) into ROOT/usr/share/hokku/xattrs/PKG,
+#       for postinst to restore
+set -euo pipefail
+
+case $1 in
+stage)
+    app=$2 sig=$3 root=$(realpath "$4") src=${5:-$2}
+    target=/usr/bin/$app
+    name=${sig#application/}
+    system=/usr/share/cosmoe/mime_db
+    entry="$root/usr/share/cosmoe/mime_db/application/${name,,}"
+    db=$(mktemp -d)
+    trap 'rm -rf "$db"' EXIT
+    install -Dm755 "$src" "$root$target"
+    mimeset -f --mimedb "$system" "$root$target"
+    # Only the app's own entry (the database's names are lowercase): those of
+    # the types it handles belong to Hokku.
+    mkdir -p "$root/usr/share/cosmoe/mime_db/application"
+    mimeset -a --mimedb "$db" --mimedb "$system" "$root$target"
+    cp -a "$db/application/${name,,}" "$entry"
+    chmod 644 "$entry"   # mimeset creates it 0600, unreadable to users
+    # mimeset recorded where it found the app, which is in staging
+    for attr in META:PPATH META:S:DESC; do
+        value="$(catattr -d $attr "$entry" 2>/dev/null)" || continue
+        [ "$value" != "$root$target" ] || addattr $attr "$target" "$entry"
+    done
+    ;;
+desktop)
+    # hokku-deb desktop APP SIG ICON COMMENT CATEGORIES MENU ROOT: a .desktop
+    # entry, and the app in the Deskbar's MENU (Applications, Preferences…)
+    app=$2 sig=$3 icon=$4 comment=$5 categories=$6 menu=$7 root=$8
+    install -Dm644 /dev/stdin "$root/usr/share/applications/${sig#application/}.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=$app
+Comment=$comment
+Exec=$app %F
+Icon=$icon
+Terminal=false
+Categories=$categories
+StartupWMClass=${sig#application/}
+EOF
+    install -d "$root/usr/share/cosmoe/deskbar/menu/$menu"
+    ln -sf ../../../../../bin/$app "$root/usr/share/cosmoe/deskbar/menu/$menu/$app"
+    ;;
+xattrs)
+    pkg=$2 root=$3
+    dump=$(mktemp)
+    (cd "$root" && getfattr -R -P -h -d -m '^user\.' -e base64 usr) >"$dump"
+    grep -q BEOS: "$dump" || { echo "hokku-deb: no Hokku xattrs in $root" >&2; exit 1; }
+    install -Dm644 "$dump" "$root/usr/share/hokku/xattrs/$pkg"
+    rm -f "$dump"
+    ;;
+*)
+    sed -n '2,15p' "$0" >&2; exit 1 ;;
+esac

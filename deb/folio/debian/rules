@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+PKG := folio
+APP := Folio
+SIG := application/x-vnd.Folio
+COMMENT := Notebooks in Markdown with links that follow renames
+CATEGORIES := Office;TextEditor;
+
+install-extra:
+	install -Dm644 packaging/appimage/icon.png debian/$(PKG)/usr/share/icons/hicolor/256x256/apps/$(PKG).png
+	install -Dm644 packaging/appimage/folio.svg debian/$(PKG)/usr/share/icons/hicolor/scalable/apps/$(PKG).svg
+
+include debian/hokku-app.mk

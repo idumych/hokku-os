@@ -1,0 +1,15 @@
+Source: folio
+Section: editors
+Priority: optional
+Maintainer: idumych <idumych@gmail.com>
+Build-Depends: debhelper-compat (= 13), cosmoe-dev, attr
+Standards-Version: 4.7.0
+Homepage: https://github.com/idumych/folio
+Rules-Requires-Root: no
+
+Package: folio
+Architecture: amd64
+Depends: cosmoe, attr, hicolor-icon-theme, ${shlibs:Depends}, ${misc:Depends}
+Description: notebooks in Markdown with links that follow renames
+ Folio keeps notebooks of Markdown pages whose links follow a page when it is
+ renamed or moved, with backlinks for each page. A Hokku app.

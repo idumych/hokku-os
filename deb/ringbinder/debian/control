@@ -1,0 +1,16 @@
+Source: ringbinder
+Section: utils
+Priority: optional
+Maintainer: idumych <idumych@gmail.com>
+Build-Depends: debhelper-compat (= 13), cosmoe-dev, attr, libcurl4-openssl-dev
+Standards-Version: 4.7.0
+Homepage: https://github.com/idumych/ringbinder
+Rules-Requires-Root: no
+
+Package: ringbinder
+Architecture: amd64
+Depends: cosmoe, attr, hicolor-icon-theme, ${shlibs:Depends}, ${misc:Depends}
+Description: tabbed personal organizer
+ Ringbinder is a ring-bound personal organizer: diary, tasks, contacts,
+ calls, year planner, notes and anniversaries, each behind its own tab.
+ A Hokku app.

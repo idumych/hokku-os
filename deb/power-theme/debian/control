@@ -1,0 +1,19 @@
+Source: power-theme
+Section: x11
+Priority: optional
+Maintainer: idumych <idumych@gmail.com>
+Build-Depends: debhelper-compat (= 13), cosmoe-dev, cosmoe-desktop, attr, g++, binutils
+Standards-Version: 4.7.0
+Homepage: https://github.com/idumych/power-theme
+Rules-Requires-Root: no
+
+Package: power-theme
+Architecture: amd64
+Depends: cosmoe, cosmoe-desktop, cosmoe-dev, attr, g++, binutils, hicolor-icon-theme,
+ ${shlibs:Depends}, ${misc:Depends}
+Description: theme manager for Hokku apps and the Hokku session
+ Power Theme switches window borders, controls, colours, fonts and icons
+ between themes, for Hokku's applications and, through labwc-hokku, every
+ window in the Hokku session. Its window decorators and control looks come
+ built for the packaged Hokku; "Build add-ons…" builds them again for the
+ user (with the compiler and Hokku's development files it depends on).

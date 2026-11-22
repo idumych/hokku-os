@@ -1,0 +1,13 @@
+#!/bin/sh
+# Hokku's session entry runs cosmoe-desktop.sh; ours runs hokku-session, which
+# starts it with Gonx's plain background. Divert Hokku's out of the way, so the
+# display manager lists one "Hokku".
+set -e
+
+if [ "$1" = install ] || [ "$1" = upgrade ]; then
+    dpkg-divert --package hokku-os-settings --rename \
+        --divert /usr/share/wayland-sessions/cosmoe.desktop.hokku-orig \
+        --add /usr/share/wayland-sessions/cosmoe.desktop
+fi
+
+#DEBHELPER#
