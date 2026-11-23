@@ -1,6 +1,7 @@
 #!/bin/bash
-# deb-vm.sh CMD …  — an Ubuntu 26.04 VM (QEMU/KVM, from Ubuntu's cloud image) to build
-# Hokku's .debs in a clean system and try them, for Ubuntu derivatives such as Linux Lite 8.
+# deb-vm.sh CMD …  — an Ubuntu VM (QEMU/KVM, from Ubuntu's cloud image: 26.04, or RELEASE)
+# to build Hokku's .debs in a clean system and try them, for Ubuntu derivatives such as
+# Linux Lite.
 #
 #   start            boot the VM (made on first use: a disk over the cloud image and a
 #                    cloud-init seed with user "build", password "build", and an SSH key)
@@ -10,18 +11,24 @@
 #   reset            delete the VM's disk, so the next start is a fresh system
 #   stop             power off
 #
-#   DIR (default build/deb-vm)  SMP (default 16)  MEM (default 16384, MB)
-# SSH: 127.0.0.1:2227 -> guest 22.
+#   RELEASE (default resolute: 26.04; jammy is 22.04, for Linux Lite 6)
+#   DIR (default build/deb-vm, build/deb-vm-RELEASE for another release)
+#   SMP (default 16)  MEM (default 16384, MB)  PORT (SSH, default 2227; 2229 for jammy)
+# SSH: 127.0.0.1:PORT -> guest 22.
 # Needs qemu-system-x86_64, xorriso, curl, ssh.
 
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
-DIR=${DIR:-$root/build/deb-vm}
+RELEASE=${RELEASE:-resolute}
+if [ "$RELEASE" = resolute ]; then
+    DIR=${DIR:-$root/build/deb-vm}; port=${PORT:-2227}
+else
+    DIR=${DIR:-$root/build/deb-vm-$RELEASE}; port=${PORT:-2229}
+fi
 SMP=${SMP:-16}
 MEM=${MEM:-16384}
-image_url=https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img
-port=2227
+image_url=https://cloud-images.ubuntu.com/$RELEASE/current/$RELEASE-server-cloudimg-amd64.img
 mkdir -p "$DIR"
 
 ssh_opts=(-i "$DIR/id_ed25519" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
@@ -29,9 +36,9 @@ ssh_opts=(-i "$DIR/id_ed25519" -o StrictHostKeyChecking=no -o UserKnownHostsFile
 vm_ssh() { ssh "${ssh_opts[@]}" -p $port build@127.0.0.1 "$@"; }
 
 make_vm() {
-    [ -f "$DIR/resolute.img" ] || curl -fL -o "$DIR/resolute.img" "$image_url"
+    [ -f "$DIR/$RELEASE.img" ] || curl -fL -o "$DIR/$RELEASE.img" "$image_url"
     [ -f "$DIR/id_ed25519" ] || ssh-keygen -q -t ed25519 -N '' -C deb-vm -f "$DIR/id_ed25519"
-    qemu-img create -q -f qcow2 -F qcow2 -b "$DIR/resolute.img" "$DIR/disk.qcow2" 80G
+    qemu-img create -q -f qcow2 -F qcow2 -b "$DIR/$RELEASE.img" "$DIR/disk.qcow2" 80G
     local seed="$DIR/seed"
     rm -rf "$seed"
     mkdir -p "$seed"
@@ -86,5 +93,5 @@ reset)
 stop)
     echo system_powerdown | socat - "UNIX-CONNECT:$DIR/monitor.sock" >/dev/null 2>&1 || true ;;
 *)
-    sed -n '2,17p' "$0"; exit 1 ;;
+    sed -n '2,19p' "$0"; exit 1 ;;
 esac

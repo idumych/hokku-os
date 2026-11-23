@@ -9,9 +9,9 @@ Rules-Requires-Root: no
 
 Package: hokku-os-settings
 Architecture: all
-Depends: cosmoe-desktop, labwc, fonts-noto-core, gawk, kanshi, xwayland, qt-style-kvantum,
- ${misc:Depends}
-Recommends: wdisplays, grim, brightnessctl, wireplumber, network-manager-gnome
+Depends: cosmoe-desktop, fonts-noto-core, gawk, kanshi, xwayland, ${misc:Depends}
+Recommends: qt-style-kvantum, wdisplays, grim, brightnessctl, wireplumber,
+ network-manager-gnome
 Suggests: kmix, blueman
 Description: Hokku OS desktop defaults: the Gonx look and the session
  The Gonx look for new users (Hokku apps, GTK and Qt), the BeOS pointer, and

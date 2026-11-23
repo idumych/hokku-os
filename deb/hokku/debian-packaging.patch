@@ -1,0 +1,689 @@
+diff --git a/Makefile b/Makefile
+index c70332d9..dfc334f8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -71,14 +71,33 @@ distclean: clean
+ endif
+ 
+ ifeq ($(COSMOE_DEBIAN_RULES),1)
++# Where the system's libraries are too old for labwc 0.20 (its libinput 1.26:
++# Ubuntu 22.04 and 24.04), labwc-hokku is built on its own (labwc-hokku/),
++# with what it needs newer linked statically, and Hokku without it
++DEB_STATIC_LABWC := $(shell pkg-config --atleast-version=1.26 libinput || echo 1)
+ deb:
+-	rm -rf $(DEB_BUILDDIR) $(DEB_DESTDIR)
++	rm -rf $(DEB_BUILDDIR) $(DEB_DESTDIR) $(DEB_BUILDDIR)-labwc
+ 	meson setup $(DEB_BUILDDIR) --prefix=/usr --libdir=lib/$(DEB_MULTIARCH) \
+-		-Denable_unit_test_compile=false
++		-Denable_unit_test_compile=false \
++		$(if $(DEB_STATIC_LABWC),-Dlabwc_hokku=disabled)
+ 	ninja -C $(DEB_BUILDDIR)
+ 	# labwc-hokku links the wlroots and libsfdo it may fetch statically
+ 	DESTDIR=$(DEB_DESTDIR) meson install -C $(DEB_BUILDDIR) --no-rebuild \
+ 		--skip-subprojects libsfdo,wlroots
++ifneq ($(DEB_STATIC_LABWC),)
++	PKG_CONFIG_PATH=$(CURDIR)/labwc-hokku/pkgconfig meson setup \
++		$(DEB_BUILDDIR)-labwc labwc-hokku --prefix=/usr \
++		-Ddefault_library=static --force-fallback-for=libinput \
++		-Dlibinput:libwacom=false -Dlibinput:debug-gui=false \
++		-Dlibinput:tests=false -Dlibinput:documentation=false
++	ninja -C $(DEB_BUILDDIR)-labwc
++	install -D -m 755 $(DEB_BUILDDIR)-labwc/subprojects/labwc/labwc-hokku \
++		$(DEB_DESTDIR)/usr/bin/labwc-hokku
++	# its libinput's own device quirks (the system's may be too old for it)
++	install -d $(DEB_DESTDIR)/usr/share/labwc-hokku/libinput
++	install -m 644 subprojects/libinput/quirks/*.quirks \
++		$(DEB_DESTDIR)/usr/share/labwc-hokku/libinput/
++endif
+ else
+ deb:
+ 	rm -rf debian/packages
+diff --git a/debian/changelog b/debian/changelog
+index 4d910c71..86e0b88b 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,3 +1,17 @@
++cosmoe (0.9.0-2) unstable; urgency=medium
++
++  * Restore Hokku's xattrs (types, app signatures, the MIME database) on
++    install: .debs can't carry them.
++  * Package what the install lists missed: GLTeapot, Notifications,
++    TrayExport, TrayBridge, notification_server, the theme tools, cursor,
++    GTK and Kvantum themes; runtime tools (addattr, finddir…) move from
++    cosmoe-dev to cosmoe.
++  * Build labwc-hokku's wlroots and libsfdo where the system's are too old.
++  * Install Hokku's listres as hokku-listres: x11-utils has a listres.
++  * Restore the xattrs without setfattr -P where attr predates it.
++
++ -- idumych <idumych@gmail.com>  Sat, 21 Nov 2026 21:00:00 -0800
++
+ cosmoe (0.9.0-1) unstable; urgency=medium
+ 
+   * Initial Debian package.
+diff --git a/debian/control b/debian/control
+index fe3b9b7b..038db703 100644
+--- a/debian/control
++++ b/debian/control
+@@ -36,21 +36,45 @@ Build-Depends:
+  libxml2-dev,
+  librsvg2-dev,
+  libseat-dev,
+- libdisplay-info-dev,
+- libliftoff-dev,
++ libdisplay-info-dev <!pkg.cosmoe.static-labwc>,
++ libliftoff-dev <!pkg.cosmoe.static-labwc>,
+  libgbm-dev,
+  libegl-dev,
+  libgles-dev,
+  hwdata,
+  wayland-protocols,
+- git
++ git,
++ xwayland,
++ libsfdo-dev <!pkg.cosmoe.static-labwc>,
++ libsystemd-dev <pkg.cosmoe.static-labwc>,
++ libmtdev-dev <pkg.cosmoe.static-labwc>,
++ libevdev-dev <pkg.cosmoe.static-labwc>,
++ libudev-dev <pkg.cosmoe.static-labwc>,
++ liblcms2-dev <pkg.cosmoe.static-labwc>,
++ libxcb-dri3-dev <pkg.cosmoe.static-labwc>,
++ libxcb-present-dev <pkg.cosmoe.static-labwc>,
++ libxcb-shm0-dev <pkg.cosmoe.static-labwc>,
++ libxcb-xinput-dev <pkg.cosmoe.static-labwc>,
++ libxcb-render-util0-dev <pkg.cosmoe.static-labwc>,
++ libxcb1-dev,
++ libxcb-composite0-dev,
++ libxcb-ewmh-dev,
++ libxcb-icccm4-dev,
++ libxcb-render0-dev,
++ libxcb-res0-dev,
++ libxcb-xfixes0-dev,
++ attr
+ Standards-Version: 4.6.2
+ Homepage: https://cosmoe.org
+ Rules-Requires-Root: no
+ 
+ Package: cosmoe
+ Architecture: any
++Provides: hokku
++Replaces: cosmoe-dev (<< 0.9.0-2)
++Breaks: cosmoe-dev (<< 0.9.0-2)
+ Depends:
++ attr,
+  adwaita-icon-theme,
+  xcursor-themes,
+  ${shlibs:Depends},
+@@ -76,6 +100,7 @@ Description: development files for the Cosmoe framework
+ Package: cosmoe-apps
+ Section: x11
+ Architecture: any
++Provides: hokku-apps
+ Depends:
+  cosmoe (= ${binary:Version}),
+  ${shlibs:Depends},
+@@ -87,17 +112,22 @@ Description: applications bundled with the Cosmoe framework
+ Package: cosmoe-desktop
+ Section: x11
+ Architecture: any
++Provides: hokku-desktop
+ Depends:
+  cosmoe (= ${binary:Version}),
+  cosmoe-apps (= ${binary:Version}),
+- labwc,
+- mako-notifier,
+- dbus-daemon,
++ dbus-daemon | dbus (<< 1.14),
+  policykit-1-gnome,
+  xdg-desktop-portal,
+  xdg-desktop-portal-wlr,
++ ${shlibs:Depends},
+  ${misc:Depends}
+ Recommends:
++ labwc,
++ pipewire,
++ wireplumber,
++ xwayland,
++ xdg-desktop-portal-gtk,
+  kanshi,
+  grim,
+  wdisplays,
+@@ -106,6 +136,10 @@ Recommends:
+  network-manager-gnome,
+  qt-style-kvantum,
+  fonts-noto-core
++Suggests:
++ mako-notifier,
++ blueman,
++ kmix
+ Description: Cosmoe Wayland desktop session
+  This package provides the Cosmoe Wayland desktop session, including Tracker,
+  Deskbar, and a display-manager session entry.
+diff --git a/debian/cosmoe-apps.install b/debian/cosmoe-apps.install
+index 35a6f2d0..2b143094 100644
+--- a/debian/cosmoe-apps.install
++++ b/debian/cosmoe-apps.install
+@@ -73,3 +73,10 @@ usr/share/icons/hicolor/*/apps/stylededit.png
+ usr/share/icons/hicolor/*/apps/sudoku.png
+ usr/share/icons/hicolor/*/apps/terminal.png
+ usr/share/icons/hicolor/*/apps/time.png
++usr/bin/GLTeapot
++usr/bin/Notifications
++usr/bin/TrayExport
++usr/share/applications/x-vnd.Haiku-GLTeapot.desktop
++usr/share/applications/x-vnd.Haiku-Notifications.desktop
++usr/share/icons/hicolor/*/apps/glteapot.png
++usr/share/icons/hicolor/*/apps/notifications.png
+diff --git a/debian/cosmoe-apps.postinst b/debian/cosmoe-apps.postinst
+new file mode 120000
+index 00000000..5fc9a2c6
+--- /dev/null
++++ b/debian/cosmoe-apps.postinst
+@@ -0,0 +1 @@
++cosmoe.postinst
+\ No newline at end of file
+diff --git a/debian/cosmoe-desktop.install b/debian/cosmoe-desktop.install
+index 476670ee..544a228a 100644
+--- a/debian/cosmoe-desktop.install
++++ b/debian/cosmoe-desktop.install
+@@ -16,3 +16,6 @@ usr/share/xdg-desktop-portal/cosmoe-portals.conf
+ usr/share/cosmoe-desktop/
+ usr/lib/systemd/user/hokku-session.target
+ etc/xdg/autostart/kmix-hokku.desktop
++usr/bin/TrayBridge
++usr/bin/notification_server
++usr/share/icons/hicolor/*/apps/notification_server.png
+diff --git a/debian/cosmoe-desktop.postinst b/debian/cosmoe-desktop.postinst
+new file mode 120000
+index 00000000..5fc9a2c6
+--- /dev/null
++++ b/debian/cosmoe-desktop.postinst
+@@ -0,0 +1 @@
++cosmoe.postinst
+\ No newline at end of file
+diff --git a/debian/cosmoe-dev.install b/debian/cosmoe-dev.install
+index 7dafafe6..18969c88 100644
+--- a/debian/cosmoe-dev.install
++++ b/debian/cosmoe-dev.install
+@@ -1,21 +1,14 @@
+ etc/makefile-engine
+ usr/include/
+ usr/lib/*/*.a
+-usr/bin/addattr
+-usr/bin/catattr
+-usr/bin/copyattr
+ usr/bin/dumpcatalog
+ usr/bin/linkcatkeys
+ usr/bin/collectcatkeys
+-usr/bin/finddir
+-usr/bin/findpaths
+-usr/bin/getarch
+-usr/bin/hey
+-usr/bin/listattr
+ usr/bin/listres
+-usr/bin/message
+ usr/bin/mkdepend
+ usr/bin/rc
+-usr/bin/roster
+ usr/bin/xres
+ usr/bin/vicn2png
++usr/lib/*/libmedia.so
++usr/lib/*/libnetwork.so
++usr/lib/*/libtranslation.so
+diff --git a/debian/cosmoe.install b/debian/cosmoe.install
+index ae560751..4fd748e9 100644
+--- a/debian/cosmoe.install
++++ b/debian/cosmoe.install
+@@ -8,3 +8,22 @@ usr/lib/*/libtracker.so
+ usr/share/cosmoe/
+ usr/share/fonts/ttf/cosmoe/
+ usr/bin/mimeset
++usr/bin/addattr
++usr/bin/catattr
++usr/bin/copyattr
++usr/bin/listattr
++usr/bin/finddir
++usr/bin/findpaths
++usr/bin/getarch
++usr/bin/hey
++usr/bin/message
++usr/bin/roster
++usr/bin/gonx-theme
++usr/bin/hokku-theme
++usr/bin/setdecor
++usr/bin/resattr
++usr/lib/*/libopengl.so
++usr/share/icons/Hokku/
++usr/share/icons/Hokku-Shadow/
++usr/share/themes/
++usr/share/Kvantum/
+diff --git a/debian/cosmoe.postinst b/debian/cosmoe.postinst
+new file mode 100644
+index 00000000..8bde36a3
+--- /dev/null
++++ b/debian/cosmoe.postinst
+@@ -0,0 +1,21 @@
++#!/bin/sh
++# Restore the xattrs that Hokku keeps its MIME database and app signatures in
++# (dumped at build time; .debs can't carry them). Each Hokku package runs
++# this, so it restores every installed package's dump.
++set -e
++
++if [ "$1" = configure ]; then
++    cd /
++    for f in usr/share/hokku/xattrs/*; do
++        [ -s "$f" ] || continue
++        # -P (don't follow symbolic links) came with an attr security update
++        # (Ubuntu's 1:2.5.2-4ubuntu0.1); Linux Lite 8.0's attr lacks it
++        if setfattr -P --help >/dev/null 2>&1; then
++            setfattr -h -P --restore="$f" || echo "warning: some Hokku attributes in $f weren't restored" >&2
++        else
++            setfattr -h --restore="$f" || echo "warning: some Hokku attributes in $f weren't restored" >&2
++        fi
++    done
++fi
++
++#DEBHELPER#
+diff --git a/debian/not-installed b/debian/not-installed
+index b4e777e2..4bc03c2a 100644
+--- a/debian/not-installed
++++ b/debian/not-installed
+@@ -20,3 +20,4 @@ usr/local/share/icons/hicolor/icon-theme.cache
+ etc/macos-bundle.sh
+ # installed by debian/rules where it could be built
+ usr/bin/labwc-hokku
++usr/share/labwc-hokku
+diff --git a/debian/rules b/debian/rules
+index 0c06c18a..4d295aac 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -4,7 +4,7 @@
+ 	dh $@
+ 
+ override_dh_auto_clean:
+-	rm -rf builddir-deb debian/tmp
++	rm -rf builddir-deb debian/tmp debian/xattrs.dump
+ 
+ override_dh_auto_configure:
+ 	@:
+@@ -15,11 +15,32 @@ override_dh_auto_build:
+ override_dh_auto_install:
+ 	COSMOE_DEBIAN_RULES=1 $(MAKE) deb
+ 
+-# labwc-hokku is built where the system's libraries are new enough for labwc
+-# (not on Ubuntu 24.04), which leaves the session with plain labwc
++# labwc-hokku: with the system's wlroots or Hokku's, or on its own where the
++# system's libraries are too old (the Makefile; build profile
++# pkg.cosmoe.static-labwc for its build dependencies). Without it the session
++# has plain labwc.
+ override_dh_install:
+ 	dh_install
+ 	if [ -e debian/tmp/usr/bin/labwc-hokku ]; then \
+ 		install -D -m 755 debian/tmp/usr/bin/labwc-hokku \
+ 			debian/cosmoe-desktop/usr/bin/labwc-hokku; \
+ 	fi
++	if [ -d debian/tmp/usr/share/labwc-hokku ]; then \
++		mkdir -p debian/cosmoe-desktop/usr/share; \
++		cp -a debian/tmp/usr/share/labwc-hokku debian/cosmoe-desktop/usr/share/; \
++	fi
++	# x11-utils has a listres of its own (X11 widget resources)
++	mv debian/cosmoe-dev/usr/bin/listres debian/cosmoe-dev/usr/bin/hokku-listres
++	# Hokku keeps types, app signatures and the MIME database (icons
++	# included) in xattrs, which .debs can't carry: dump each package's,
++	# for its postinst to restore.
++	(cd debian/tmp && getfattr -R -P -h -d -m '^user\.' -e base64 usr) \
++		>debian/xattrs.dump
++	grep -q BEOS: debian/xattrs.dump
++	for pkg in cosmoe cosmoe-apps cosmoe-desktop; do \
++		mkdir -p debian/$$pkg/usr/share/hokku/xattrs; \
++		awk -v root=debian/$$pkg 'BEGIN { RS = ""; ORS = "\n\n" } \
++			{ f = substr($$0, 9, index($$0, "\n") - 9) } \
++			system("test -e \"" root "/" f "\" -o -L \"" root "/" f "\"") == 0' \
++			debian/xattrs.dump >debian/$$pkg/usr/share/hokku/xattrs/$$pkg; \
++	done
+diff --git a/labwc-hokku/meson.build b/labwc-hokku/meson.build
+new file mode 100644
+index 00000000..13420f74
+--- /dev/null
++++ b/labwc-hokku/meson.build
+@@ -0,0 +1,82 @@
++# labwc-hokku on its own, for systems whose libraries are too old for labwc
++# 0.20 (Ubuntu 22.04). Built apart from Hokku, so that labwc, wlroots and the
++# libraries they need newer than the system's (wayland's server, libinput,
++# libdrm, xkbcommon…, from subprojects/) are linked statically into
++# labwc-hokku while Hokku keeps the system's:
++#
++#   meson setup build labwc-hokku -Ddefault_library=static && ninja -C build
++#
++# Where the system's are new enough, Hokku's own build has labwc-hokku (the
++# labwc_hokku option) and this isn't needed.
++project('labwc-hokku', 'c',
++	meson_version: '>= 1.3.0',
++	default_options: ['default_library=static'],
++)
++
++cc = meson.get_compiler('c')
++config = configuration_data()
++config.set('HAVE_PANGO', 1)
++config.set('HAVE_STRCHRNUL', cc.has_function('strchrnul', prefix: '#define _GNU_SOURCE\n#include <string.h>') ? 1 : false)
++config.set('HAVE_BUILTIN_CLZ', cc.has_function('__builtin_clz') ? 1 : false)
++config.set('HAVE_BUILTIN_POPCOUNT', cc.has_function('__builtin_popcount') ? 1 : false)
++configure_file(output: 'config.h', configuration: config)
++
++frames_deps = [
++	dependency('cairo'),
++	dependency('pangocairo'),
++	dependency('libpng'),
++	cc.find_library('m'),
++]
++frames_inc = include_directories(
++	'.', '../headers/libs/wayland/shared', '../headers/private/interface')
++frames = static_library('hokku-frames',
++	'../src/backends/wayland/shared/gonx-frame.c',
++	'../src/backends/wayland/shared/haiku-frame.c',
++	include_directories: frames_inc,
++	dependencies: frames_deps,
++	pic: true,
++)
++meson.override_dependency('hokku-frames', declare_dependency(
++	link_with: frames,
++	include_directories: frames_inc,
++	dependencies: frames_deps,
++))
++
++# Ubuntu 22.04's Xwayland (22.1) has no xwayland.pc: what wlroots and labwc
++# read from it, from Xwayland itself
++if not dependency('xwayland', required: false).found()
++	xwayland_prog = find_program('Xwayland', required: false)
++	if xwayland_prog.found()
++		help = run_command(xwayland_prog, '-help', check: false)
++		help = help.stdout() + help.stderr()
++		has = {
++			'listenfd': '-listenfd',
++			'no_touch_pointer_emulation': '-noTouchPointerEmulation',
++			'force_xrandr_emulation': '-force-xrandr-emulation',
++			'terminate_delay': '-terminate [delay]',
++		}
++		variables = {'xwayland': xwayland_prog.full_path()}
++		foreach name, option : has
++			variables += {'have_' + name: help.contains(option) ? 'true' : 'false'}
++		endforeach
++		# "The X.Org Foundation Xwayland Version 22.1.1 (12201001)"
++		version = run_command(xwayland_prog, '-version', check: false)
++		version = (version.stdout() + version.stderr()).split('Version ')[1].split()[0]
++		meson.override_dependency('xwayland', declare_dependency(
++			version: version,
++			variables: variables,
++		))
++	endif
++endif
++
++subproject('labwc',
++	default_options: [
++		'hokku=true',
++		'man-pages=disabled',
++		'nls=disabled',
++		'labnag=disabled',
++		'systemd-session=disabled',
++		'test=disabled',
++		'werror=false',
++	],
++)
+diff --git a/labwc-hokku/pkgconfig/hwdata.pc b/labwc-hokku/pkgconfig/hwdata.pc
+new file mode 100644
+index 00000000..49a9ed9a
+--- /dev/null
++++ b/labwc-hokku/pkgconfig/hwdata.pc
+@@ -0,0 +1,9 @@
++# Ubuntu 22.04's hwdata has no hwdata.pc, which wlroots' DRM backend looks
++# for (PKG_CONFIG_PATH=labwc-hokku/pkgconfig)
++prefix=/usr
++datadir=${prefix}/share
++pkgdatadir=${datadir}/hwdata
++
++Name: hwdata
++Description: Hardware identification and configuration data
++Version: 0.357
+diff --git a/labwc-hokku/subprojects b/labwc-hokku/subprojects
+new file mode 120000
+index 00000000..15858bcd
+--- /dev/null
++++ b/labwc-hokku/subprojects
+@@ -0,0 +1 @@
++../subprojects
+\ No newline at end of file
+diff --git a/meson.build b/meson.build
+index a3b541c9..76c40da5 100644
+--- a/meson.build
++++ b/meson.build
+@@ -365,7 +365,7 @@ if is_linux
+ 		config_h.set('HAVE_XKBCOMMON_COMPOSE', '1')
+ 	endif
+ 	
+-	dep_wayland_client = dependency('wayland-client', version: '>= 1.22.0', required: wayland_enabled)
++	dep_wayland_client = dependency('wayland-client', version: '>= 1.20.0', required: wayland_enabled)
+ else
+ 	# macOS - xkbcommon not needed, use disabler to make dependencies happy
+ 	dep_xkbcommon = disabler()
+@@ -433,8 +433,8 @@ if is_darwin
+ else
+ 	# Linux typically has newer ICU in standard locations
+ 	dep_icu = [
+-	  dependency('icu-i18n', version: '>= 72.0'),
+-	  dependency('icu-uc', version: '>= 72.0'),
++	  dependency('icu-i18n', version: '>= 70.0'),
++	  dependency('icu-uc', version: '>= 70.0'),
+ 	]
+ endif
+ 
+diff --git a/src/add-ons/translators/raw/LibRAW.cpp b/src/add-ons/translators/raw/LibRAW.cpp
+index 0252a813..19ebe755 100644
+--- a/src/add-ons/translators/raw/LibRAW.cpp
++++ b/src/add-ons/translators/raw/LibRAW.cpp
+@@ -35,7 +35,12 @@ static const uint32 kDecodeBufferCount = 2048;
+ #define T fRaw->imgdata.thumbnail
+ #define P2 fRaw->imgdata.other
+ #define OUT fRaw->imgdata.params
++#if LIBRAW_COMPILE_CHECK_VERSION_NOTLESS(0, 21)
+ #define RAWPARAMS fRaw->imgdata.rawparams
++#else
++// LibRAW 0.20 (Ubuntu 22.04) has them in params
++#define RAWPARAMS fRaw->imgdata.params
++#endif
+ 
+ 
+ //	#pragma mark -
+diff --git a/src/kits/network/libnetapi/NetworkRoute.cpp b/src/kits/network/libnetapi/NetworkRoute.cpp
+index 6aa0ac98..71db401b 100644
+--- a/src/kits/network/libnetapi/NetworkRoute.cpp
++++ b/src/kits/network/libnetapi/NetworkRoute.cpp
+@@ -18,6 +18,7 @@
+ #include <vector>
+ 
+ #include <AutoDeleter.h>
++#include <OS.h>
+ 
+ 
+ // Linux's sockaddr has no sa_len: the length follows from the family.
+diff --git a/src/kits/storage/FindDirectory.cpp b/src/kits/storage/FindDirectory.cpp
+index 3c3ff985..9ad893f1 100755
+--- a/src/kits/storage/FindDirectory.cpp
++++ b/src/kits/storage/FindDirectory.cpp
+@@ -12,6 +12,7 @@
+ #include <config.h>
+ 
+ #include <errno.h>
++#include <stdlib.h>
+ #include <string.h>
+ 
+ #include <Directory.h>
+@@ -141,6 +142,15 @@ get_system_lib_directory(BPath &path)
+ 			// Get the directory containing the library
+ 			BPath parentPath;
+ 			if (libPath.GetParent(&parentPath) == B_OK) {
++				// The loader may have found it through a symbolic link: on a
++				// merged /usr (Ubuntu 22.04), /lib/x86_64-linux-gnu, where
++				// the prefix would come out as / instead of /usr
++				char* real = realpath(parentPath.Path(), NULL);
++				if (real != NULL) {
++					status_t status = path.SetTo(real);
++					free(real);
++					return status;
++				}
+ 				return path.SetTo(parentPath.Path());
+ 			}
+ 		}
+diff --git a/src/kits/storage/Query.cpp b/src/kits/storage/Query.cpp
+index 74c5eddd..576b378a 100755
+--- a/src/kits/storage/Query.cpp
++++ b/src/kits/storage/Query.cpp
+@@ -12,6 +12,7 @@
+ #include <Query.h>
+ 
+ #include <new>
++#include <stddef.h>
+ #include <string.h>
+ #include <time.h>
+ 
+diff --git a/src/kits/storage/sniffer/RPattern.cpp b/src/kits/storage/sniffer/RPattern.cpp
+index 814f369e..cdfa358d 100644
+--- a/src/kits/storage/sniffer/RPattern.cpp
++++ b/src/kits/storage/sniffer/RPattern.cpp
+@@ -11,6 +11,8 @@
+ 	MIME sniffer rpattern implementation
+ */
+ 
++#include <stddef.h>
++
+ #include "Err.h"
+ #include "RPattern.h"
+ #include "Range.h"
+diff --git a/subprojects/libinput.wrap b/subprojects/libinput.wrap
+new file mode 100644
+index 00000000..8b55f546
+--- /dev/null
++++ b/subprojects/libinput.wrap
+@@ -0,0 +1,10 @@
++# labwc's libinput, for systems whose libinput is older than it needs
++# (Ubuntu 22.04), linked statically into labwc-hokku (labwc-hokku/)
++[wrap-git]
++url = https://gitlab.freedesktop.org/libinput/libinput.git
++revision = 1.31.3
++depth = 1
++diff_files = libinput-static.patch
++
++[provide]
++dependency_names = libinput
+diff --git a/subprojects/packagefiles/libinput-static.patch b/subprojects/packagefiles/libinput-static.patch
+new file mode 100644
+index 00000000..98828480
+--- /dev/null
++++ b/subprojects/packagefiles/libinput-static.patch
+@@ -0,0 +1,41 @@
++ meson.build | 10 +++++-----
++ 1 file changed, 5 insertions(+), 5 deletions(-)
++diff --git a/meson.build b/meson.build
++index 8549342..0fbfa5d 100644
++--- a/meson.build
+++++ b/meson.build
++@@ -6,7 +6,9 @@ project('libinput', 'c',
++ 
++ libinput_version = meson.project_version().split('.')
++ 
++-dir_data        = get_option('prefix') / get_option('datadir') / 'libinput'
+++# Hokku: its own quirks, as the system's older libinput may have ones it
+++# can't read (labwc-hokku installs them there)
+++dir_data        = get_option('prefix') / get_option('datadir') / 'labwc-hokku' / 'libinput'
++ dir_etc         = get_option('prefix') / get_option('sysconfdir')
++ dir_overrides   = get_option('prefix') / get_option('sysconfdir') / 'libinput'
++ dir_libexec     = get_option('prefix') / get_option('libexecdir') / 'libinput'
++@@ -483,18 +485,18 @@ libinput_version_h = configure_file(
++ 
++ mapfile = dir_src / 'libinput.sym'
++ version_flag = '-Wl,--version-script,@0@'.format(mapfile)
++-lib_libinput = shared_library('input',
+++# Hokku: linked statically into labwc-hokku (for systems with an older
+++# libinput), which needs its header too
+++lib_libinput = static_library('input',
++ 		src_libinput,
++ 		include_directories : [include_directories('.'), includes_include],
++ 		dependencies : deps_libinput,
++-		version : libinput_so_version,
++-		link_args : version_flag,
++-		link_depends : mapfile,
++-		install : true
+++		pic : true,
++ 		)
++ 
++ dep_libinput = declare_dependency(
++ 		link_with : lib_libinput,
+++		include_directories : include_directories('src'),
++ 		dependencies : deps_libinput)
++ 
++ meson.override_dependency('libinput', dep_libinput)
+diff --git a/subprojects/packagefiles/wlroots-xcb-1.14.patch b/subprojects/packagefiles/wlroots-xcb-1.14.patch
+new file mode 100644
+index 00000000..be77ea98
+--- /dev/null
++++ b/subprojects/packagefiles/wlroots-xcb-1.14.patch
+@@ -0,0 +1,32 @@
++diff --git a/xwayland/meson.build b/xwayland/meson.build
++index 3d29dc6c..426a941f 100644
++--- a/xwayland/meson.build
+++++ b/xwayland/meson.build
++@@ -6,7 +6,7 @@ xwayland_required = {
++ 	'xcb-icccm': [],
++ 	'xcb-render': [],
++ 	'xcb-res': [],
++-	'xcb-xfixes': '>=1.15',
+++	'xcb-xfixes': '>=1.14', # Hokku: 1.15 only for terminate_delay
++ }
++ xwayland_optional = {
++ 	'xcb-errors': 'Required for printing X11 errors.',
++diff --git a/xwayland/xwm.c b/xwayland/xwm.c
++index f31163d9..6a2e56fe 100644
++--- a/xwayland/xwm.c
+++++ b/xwayland/xwm.c
++@@ -2669,11 +2669,14 @@ struct wlr_xwm *xwm_create(struct wlr_xwayland *xwayland, int wm_fd) {
++ 		sizeof(supported)/sizeof(*supported),
++ 		supported);
++ 
+++	// Hokku: libxcb 1.14 (Ubuntu 22.04) has XFixes 5, without it
+++#if XCB_XFIXES_MAJOR_VERSION >= 6
++ 	if (xwm->xwayland->server->options.terminate_delay > 0 &&
++ 			xwm->xfixes_major_version >= 6) {
++ 		xcb_xfixes_set_client_disconnect_mode(xwm->xcb_conn,
++ 			XCB_XFIXES_CLIENT_DISCONNECT_FLAGS_TERMINATE);
++ 	}
+++#endif
++ 
++ 	xcb_flush(xwm->xcb_conn);
++ 
+diff --git a/subprojects/wayland.wrap b/subprojects/wayland.wrap
+new file mode 100644
+index 00000000..35796b06
+--- /dev/null
++++ b/subprojects/wayland.wrap
+@@ -0,0 +1,6 @@
++# wlroots', pinned, for systems whose libwayland is older than it needs
++# (Ubuntu 22.04: labwc-hokku/ links it statically)
++[wrap-git]
++url = https://gitlab.freedesktop.org/wayland/wayland.git
++revision = 1.26.0
++depth = 1
+diff --git a/subprojects/wlroots.wrap b/subprojects/wlroots.wrap
+index 1a3eaa20..60dac7bc 100644
+--- a/subprojects/wlroots.wrap
++++ b/subprojects/wlroots.wrap
+@@ -1,7 +1,10 @@
+-# labwc's, for systems whose wlroots or libsfdo is older than labwc-hokku needs
++# labwc's, for systems whose wlroots or libsfdo is older than labwc-hokku needs.
++# The patch lets it build with libxcb 1.14 (Ubuntu 22.04, for labwc-hokku/).
+ [wrap-git]
+ url = https://gitlab.freedesktop.org/wlroots/wlroots.git
+-revision = 0.20
++revision = 0.20.2
++depth = 1
++diff_files = wlroots-xcb-1.14.patch
+ 
+ [provide]
+ dependency_names = wlroots-0.20

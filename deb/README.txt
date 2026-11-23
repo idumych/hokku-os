@@ -1,5 +1,5 @@
-Hokku OS for Ubuntu 26.04 and its derivatives (Linux Lite 8…)
-==============================================================
+Hokku OS for @UBUNTU@ and its derivatives (@DERIVATIVE@…)
+==========================================================
 
 Hokku is the Be/Haiku API on Linux: Haiku's Tracker and Deskbar run on labwc
 (Wayland), and Linux apps share the desktop with Be apps in the same look.
@@ -27,5 +27,9 @@ The first time you log in to Hokku it takes the Gonx look. Appearance
 
 Remove:    sudo apt remove cosmoe cosmoe-dev hokku-os-settings
 
-Built for Ubuntu 26.04 (resolute), amd64. There's no package repository yet,
+On Linux Lite 6 the login screen has no session menu, so install.sh adds
+one to /etc/lightdm/lightdm-gtk-greeter.conf, keeping the old file as
+lightdm-gtk-greeter.conf.hokku-bak (copy it back to undo).
+
+Built for @UBUNTU@ (@CODENAME@), amd64. There's no package repository yet,
 so updates come as a new bundle. https://github.com/idumych/hokku-os

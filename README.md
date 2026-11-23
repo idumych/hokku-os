@@ -88,15 +88,20 @@ scripts/test-iso.sh start && scripts/test-iso.sh shot desktop
 
 `build-packages.sh` and `build-iso.sh` ask for sudo (makechrootpkg, mkarchiso).
 
-### On Ubuntu 26.04 and its derivatives (Linux Lite 8…)
+### On Ubuntu and its derivatives (Linux Lite…)
 
 The same packages, as .debs, put the whole Hokku OS desktop beside the system's own: Hokku and
 its session (labwc-hokku included), Power Theme, Folio, Sheath, Ringbinder and the Gonx look.
-They're built in a clean Ubuntu 26.04 VM from the commits the PKGBUILDs pin (no sudo needed):
+They're built in a clean Ubuntu VM from the commits the PKGBUILDs pin (no sudo needed), for
+Ubuntu 26.04 (Linux Lite 8) or 22.04 (Linux Lite 6):
 
 ```sh
-scripts/build-debs.sh      # -> out/hokku-debs-<date>.tar.gz
+scripts/build-debs.sh                  # -> out/hokku-debs-<date>.tar.gz
+RELEASE=jammy scripts/build-debs.sh    # -> out/hokku-debs-jammy-<date>.tar.gz
 ```
+
+Ubuntu 22.04 has no labwc, and its libraries are too old for labwc-hokku's labwc and wlroots,
+so there labwc-hokku carries the newer ones (libinput, wayland, libdrm, xkbcommon…) linked in.
 
 On the Ubuntu machine, unpack it and run `sudo ./install.sh` (apt brings the dependencies),
 then pick "Hokku" in the login screen's session menu. Tested in the Linux Lite 8.0 live
@@ -122,13 +127,13 @@ iso/                   overlay on CachyOS's archiso profile (CachyOS-Live-ISO, p
   packages.add/.remove   changes to CachyOS's package list
   airootfs.remove        Plasma files dropped from CachyOS's airootfs
   airootfs/              greetd, os-release, the installer launcher
-deb/                   Debian packaging for Ubuntu 26.04: deb/<pkg>/debian for each package,
-                       deb/hokku/debian.patch on Hokku's own debian/, and the bundle's
-                       install.sh and README
+deb/                   Debian packaging for Ubuntu 26.04 and 22.04: deb/<pkg>/debian for each
+                       package, deb/hokku/debian-packaging.patch (Hokku's debian-packaging
+                       branch), and the bundle's install.sh and README
 scripts/
   build-packages.sh    clean-chroot builds into repo/x86_64 (the local [hokku] repo)
   build-debs.sh        the .debs, in deb-vm.sh's Ubuntu VM, and the bundle in out/
-  deb-vm.sh            an Ubuntu 26.04 VM from its cloud image (builds, SSH, files in and out)
+  deb-vm.sh            an Ubuntu VM from its cloud image (builds, SSH, files in and out)
   build-iso.sh         profile + overlay -> mkarchiso -> out/hokku-os-*.iso
   test-iso.sh          boots the ISO or the installed disk in QEMU; screenshots, keys, clicks
 ```

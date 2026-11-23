@@ -10,7 +10,7 @@
 #   click X Y        absolute left click (usb-tablet) on a 1280x800 screen
 #   stop             hard power-off
 #
-#   DIR (default build/vm)   BIOS=1 boots SeaBIOS instead of UEFI
+#   DIR (default build/vm)   BIOS=1 boots SeaBIOS instead of UEFI   MEM (default 4096, MB)
 #   QCPU (default Nehalem): a CPU without AVX/AVX2, so anything built for x86-64-v3
 #   (the host's -march=native, CachyOS's v3 repos) crashes here instead of on a user's machine.
 # SSH: 127.0.0.1:2226 (or $SSH_PORT) -> guest 22 (the live ISO runs sshd; set a password first: passwd liveuser).
@@ -38,7 +38,7 @@ boot() {
             -drive "if=pflash,format=raw,file=$DIR/OVMF_VARS.fd")
     fi
     rm -f "$DIR/monitor.sock" "$DIR/qmp.sock"
-    setsid qemu-system-x86_64 -enable-kvm -cpu "$QCPU" -smp 4 -m 4096 "${fw[@]}" \
+    setsid qemu-system-x86_64 -enable-kvm -cpu "$QCPU" -smp 4 -m "${MEM:-4096}" "${fw[@]}" \
         -drive "file=$DIR/disk.qcow2,if=virtio,format=qcow2" "${boot_args[@]}" \
         -netdev user,id=n0,hostfwd=tcp:127.0.0.1:${SSH_PORT:-2226}-:22 -device virtio-net,netdev=n0 \
         -device virtio-vga -display none -device qemu-xhci -device usb-tablet -device usb-kbd \

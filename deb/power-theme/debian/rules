@@ -6,7 +6,8 @@
 ROOT := debian/power-theme
 APP := PowerTheme
 SIG := application/x-vnd.idumych-PowerTheme
-ADDONS := $(shell finddir B_SYSTEM_ADDONS_DIRECTORY)
+# /usr/lib, though Hokku may find itself through /lib (merged /usr, Ubuntu 22.04)
+ADDONS := $(patsubst /lib/%,/usr/lib/%,$(shell finddir B_SYSTEM_ADDONS_DIRECTORY))
 
 %:
 	dh $@

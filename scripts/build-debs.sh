@@ -1,5 +1,6 @@
 #!/bin/bash
 # Build Hokku OS's packages as .debs for Ubuntu 26.04 and its derivatives (Linux Lite 8),
+# or 22.04 (Linux Lite 6: RELEASE=jammy below),
 # in a clean Ubuntu VM (scripts/deb-vm.sh), and bundle them with an installer:
 # out/hokku-debs-<date>.tar.gz.
 #
@@ -14,6 +15,8 @@
 #   SRC_<pkg>=DIR   build from DIR, a working tree as it is, instead of the pinned
 #                   commit (SRC_power_theme=~/Projects/power-theme …; - becomes _)
 #   FRESH=1         start from a fresh VM (scripts/deb-vm.sh reset)
+#   RELEASE=jammy   for Ubuntu 22.04 (Linux Lite 6) instead of 26.04, in its own VM:
+#                   out/debs-jammy and out/hokku-debs-jammy-<date>.tar.gz
 #
 # Needs what scripts/deb-vm.sh needs, and git.
 
@@ -22,7 +25,9 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 vm="$root/scripts/deb-vm.sh"
 work="$root/build/debs"
-out="$root/out/debs"
+export RELEASE=${RELEASE:-resolute}
+if [ "$RELEASE" = resolute ]; then suffix=; else suffix=-$RELEASE; fi
+out="$root/out/debs$suffix"
 all=(hokku power-theme folio sheath ringbinder hokku-os-settings)
 pkgs=("$@")
 [ ${#pkgs[@]} -gt 0 ] || pkgs=("${all[@]}")
@@ -67,8 +72,8 @@ for pkg in "${pkgs[@]}"; do
         mkdir -p "$work/debian-$pkg/source"
         echo '3.0 (native)' >"$work/debian-$pkg/source/format"
         version="$(pkgbuild "$pkg" pkgver)-$(pkgbuild "$pkg" pkgrel)"
-        printf '%s (%s) resolute; urgency=medium\n\n  * Built from %s.\n\n -- %s  %s\n' \
-            "$pkg" "$version" "${pkg} $(pkgbuild "$pkg" _commit)" \
+        printf '%s (%s) %s; urgency=medium\n\n  * Built from %s.\n\n -- %s  %s\n' \
+            "$pkg" "$version" "$RELEASE" "${pkg} $(pkgbuild "$pkg" _commit)" \
             "idumych <idumych@gmail.com>" "$(date -R)" >"$work/debian-$pkg/changelog"
     fi
 
@@ -78,9 +83,18 @@ for pkg in "${pkgs[@]}"; do
     for patch in "$root/deb/$pkg"/*.patch; do
         [ -e "$patch" ] && "$vm" put "$patch" "src/"
     done
-    "$vm" ssh bash -s "$pkg" <<'EOF'
+    "$vm" ssh bash -s "$pkg" "$RELEASE" <<'EOF'
 set -euo pipefail
-pkg=$1
+pkg=$1 release=$2
+profiles=
+if [ "$release" != resolute ]; then
+    # Hokku and labwc want a newer meson than Ubuntu 22.04's (0.61); only to
+    # build. labwc-hokku is built on its own there (Hokku's build profile).
+    command -v pip3 >/dev/null || sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-pip >/dev/null
+    [ -x /usr/local/bin/meson ] || sudo pip3 install -q meson==1.8.2 2>/dev/null
+    profiles=pkg.cosmoe.static-labwc
+fi
+export DEB_BUILD_PROFILES=$profiles
 cd ~/src/$pkg
 if [ -d ../debian-$pkg ]; then
     # ours, not one the source may have
@@ -97,7 +111,7 @@ done
 # not against an earlier build of itself: Power Theme leaves out the add-ons
 # the system has already, and the apps their MIME database entries
 [ "$pkg" = hokku ] || sudo dpkg -r "$pkg" >/dev/null 2>&1 || true
-sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -i -r \
+sudo DEBIAN_FRONTEND=noninteractive mk-build-deps -i -r ${profiles:+--build-profiles=$profiles} \
     -t 'apt-get -y --no-install-recommends' debian/control >/dev/null
 if [ "$pkg" = hokku ]; then
     make deb >../$pkg.log 2>&1 || { tail -40 ../$pkg.log; exit 1; }
@@ -119,10 +133,20 @@ rm -f "$out"/*.deb
 
 # The bundle: the .debs and an installer
 date=$(date +%Y%m%d)
-bundle="$work/hokku-debs-$date"
+name=hokku-debs$suffix-$date
+bundle="$work/$name"
 rm -rf "$bundle"
 mkdir -p "$bundle"
 cp "$out"/*.deb "$bundle/"
-cp "$root/deb/install.sh" "$root/deb/README.txt" "$bundle/"
-tar -C "$work" -czf "$root/out/hokku-debs-$date.tar.gz" "hokku-debs-$date"
-ls -lh "$out" "$root/out/hokku-debs-$date.tar.gz"
+case $RELEASE in
+    resolute) ubuntu="Ubuntu 26.04" derivative="Linux Lite 8" ;;
+    jammy) ubuntu="Ubuntu 22.04" derivative="Linux Lite 6" ;;
+    *) ubuntu="Ubuntu ($RELEASE)" derivative="its derivatives" ;;
+esac
+for f in install.sh README.txt; do
+    sed -e "s/@UBUNTU@/$ubuntu/g" -e "s/@DERIVATIVE@/$derivative/g" \
+        -e "s/@CODENAME@/$RELEASE/g" "$root/deb/$f" >"$bundle/$f"
+done
+chmod 755 "$bundle/install.sh"
+tar -C "$work" -czf "$root/out/$name.tar.gz" "$name"
+ls -lh "$out" "$root/out/$name.tar.gz"
